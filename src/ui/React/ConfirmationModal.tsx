@@ -10,9 +10,13 @@ interface IProps {
   onConfirm: () => void;
   confirmationText: string | React.ReactNode;
   additionalButton?: React.ReactNode;
+  autoConfirm?: boolean;
 }
 
 export function ConfirmationModal(props: IProps): React.ReactElement {
+  if (props.autoConfirm) {
+    props.onConfirm();
+  }
   return (
     <Modal open={props.open} onClose={props.onClose}>
       <>

@@ -97,6 +97,9 @@ module.exports = (env, argv) => {
       new MonacoWebpackPlugin({ languages: ["javascript", "typescript", "json"] }),
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": isDevelopment ? '"development"' : '"production"',
+        "process.env.HEADLESS_MODE": false,
+        "process.env.RUNTIME_NODE": false,
+        "process.env.RUNTIME_DENO": false,
       }),
       new HtmlWebpackPlugin(htmlConfig),
       new ForkTsCheckerWebpackPlugin({

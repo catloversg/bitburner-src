@@ -77,6 +77,7 @@ test.each([
   },
 ])("Netscript execution: $name", async function ({ expected: expectedLog, scripts }) {
   global.URL.createObjectURL = function (blob) {
+    // @ts-ignore
     return "data:text/javascript," + encodeURIComponent(blob.code);
   };
 

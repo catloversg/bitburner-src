@@ -35,7 +35,7 @@ import { HacknetRoot } from "../Hacknet/ui/HacknetRoot";
 import { GenericLocation } from "../Locations/ui/GenericLocation";
 import { LocationCity } from "../Locations/ui/City";
 import { ProgramsRoot } from "../Programs/ui/ProgramsRoot";
-import { ScriptEditorRoot } from "../ScriptEditor/ui/ScriptEditorRoot";
+// import { ScriptEditorRoot } from "../ScriptEditor/ui/ScriptEditorRoot";
 import { MilestonesRoot } from "../Milestones/ui/MilestonesRoot";
 import { TerminalRoot } from "../Terminal/ui/TerminalRoot";
 import { DocumentationRoot } from "../Documentation/ui/DocumentationRoot";
@@ -73,8 +73,6 @@ import { useRerender } from "./React/hooks";
 import { HistoryProvider } from "./React/Documentation";
 import { GoRoot } from "../Go/ui/GoRoot";
 
-const htmlLocation = location;
-
 const useStyles = makeStyles(
   (theme: Theme) =>
     createStyles({
@@ -101,7 +99,10 @@ const MAX_PAGES_IN_HISTORY = 10;
 export let Router: IRouter = {
   isInitialized: false,
   page: () => {
-    throw new Error("Router called before initialization");
+    if (!process.env.HEADLESS_MODE) {
+      throw new Error("Router called before initialization");
+    }
+    return Page.Options;
   },
   allowRouting: uninitialized,
   toPage: () => {
@@ -150,7 +151,9 @@ export function GameRoot(): React.ReactElement {
       server.runningScriptMap.clear();
     }
     saveObject.saveGame();
-    setTimeout(() => htmlLocation.reload(), 2000);
+    if (globalThis.setTimeout && globalThis.location) {
+      globalThis.setTimeout(() => globalThis.location.reload(), 2000);
+    }
   }
 
   function attemptedForbiddenRouting(name: string) {
@@ -243,13 +246,13 @@ export function GameRoot(): React.ReactElement {
       break;
     }
     case Page.ScriptEditor: {
-      mainPage = (
-        <ScriptEditorRoot
-          files={pageWithContext.files ?? new Map()}
-          hostname={pageWithContext.options?.hostname ?? Player.getCurrentServer().hostname}
-          vim={!!pageWithContext.options?.vim}
-        />
-      );
+      // mainPage = (
+      //   <ScriptEditorRoot
+      //     files={pageWithContext.files ?? new Map()}
+      //     hostname={pageWithContext.options?.hostname ?? Player.getCurrentServer().hostname}
+      //     vim={!!pageWithContext.options?.vim}
+      //   />
+      // );
       break;
     }
     case Page.ActiveScripts: {

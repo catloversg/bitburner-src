@@ -4,7 +4,7 @@ import { SnackbarEvents } from "../ui/React/Snackbar";
 import { ToastVariant } from "@enums";
 
 export class Remote {
-  connection?: WebSocket;
+  connection?: any;
   static protocol = "ws";
   ipaddr: string;
   port: number;
@@ -18,10 +18,9 @@ export class Remote {
     this.connection?.close();
   }
 
-  public startConnection(): void {
-    const address = Remote.protocol + "://" + this.ipaddr + ":" + this.port;
-    this.connection = new WebSocket(address);
-
+  private setupConnection() {
+    assertExists(this.connection);
+    const address = this.connection.url;
     this.connection.addEventListener("error", (e: Event) =>
       SnackbarEvents.emit(`Error with websocket ${address}, details: ${JSON.stringify(e)}`, ToastVariant.ERROR, 5000),
     );
@@ -37,6 +36,19 @@ export class Remote {
       SnackbarEvents.emit("Remote API connection closed", ToastVariant.WARNING, 2000),
     );
   }
+
+  public startConnection(): void {
+    const address = Remote.protocol + "://" + this.ipaddr + ":" + this.port;
+    if (process.env.RUNTIME_NODE) {
+      import("ws").then(ws => {
+        this.connection = new ws.WebSocket(address);
+        this.setupConnection();
+      });
+    } else {
+      this.connection = new WebSocket(address);
+      this.setupConnection();
+    }
+  }
 }
 
 function handleMessageEvent(this: WebSocket, e: MessageEvent): void {
@@ -44,10 +56,27 @@ function handleMessageEvent(this: WebSocket, e: MessageEvent): void {
 
   if (!msg.method || !RFARequestHandler[msg.method]) {
     const response = new RFAMessage({ error: "Unknown message received", id: msg.id });
-    this.send(JSON.stringify(response));
+    sendMessage(this, response);
     return;
   }
   const response = RFARequestHandler[msg.method](msg);
   if (!response) return;
-  this.send(JSON.stringify(response));
+  sendMessage(this, response);
+}
+
+function sendMessage(websocket: WebSocket, message: any) {
+  try {
+    if (websocket.readyState !== 1) {
+      return;
+    }
+    websocket.send(JSON.stringify(message));
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function assertExists<T>(value: T): asserts value is NonNullable<T> {
+  if (value === undefined || value === null) {
+    throw new Error(`${value} doesn't exist`);
+  }
 }

@@ -22,6 +22,10 @@ import { SnackbarEvents } from "./ui/React/Snackbar";
 
 import * as ExportBonus from "./ExportBonus";
 
+import { JSONMap } from "./Types/Jsonable";
+import { ScriptFilePath } from "./Paths/ScriptFilePath";
+import { Script } from "./Script/Script";
+
 import { dialogBoxCreate } from "./ui/React/DialogBox";
 import { Reviver, constructorsForReviver, Generic_toJSON, Generic_fromJSON, IReviverValue } from "./utils/JSONReviver";
 import { save } from "./db";
@@ -98,7 +102,7 @@ class BitburnerSaveObject {
   StaneksGiftSave = "";
   GoSave = "";
 
-  async getSaveData(forceExcludeRunningScripts = false): Promise<SaveData> {
+  async getSaveData(forceExcludeRunningScripts = false, forceExcludeScripts = false): Promise<SaveData> {
     this.PlayerSave = JSON.stringify(Player);
 
     // For the servers save, overwrite the ExcludeRunningScripts setting if forced
@@ -119,6 +123,13 @@ class BitburnerSaveObject {
     this.GoSave = JSON.stringify(getGoSave());
 
     if (Player.gang) this.AllGangsSave = JSON.stringify(AllGangs);
+
+    if (forceExcludeScripts) {
+      const AllServersObject = JSON.parse(this.AllServersSave);
+      AllServersObject["home"].data.scripts = new JSONMap<ScriptFilePath, Script>();
+      AllServersObject["home"].data.runningScripts = [];
+      this.AllServersSave = JSON.stringify(AllServersObject);
+    }
 
     return await encodeJsonSaveString(JSON.stringify(this));
   }
@@ -168,7 +179,7 @@ class BitburnerSaveObject {
   async exportGame(): Promise<void> {
     let saveData;
     try {
-      saveData = await this.getSaveData();
+      saveData = await this.getSaveData(false, true);
     } catch (error) {
       handleGetSaveDataError(error);
       return;
@@ -838,7 +849,7 @@ async function loadGame(saveData: SaveData): Promise<boolean> {
 }
 
 function createScamUpdateText(): void {
-  if (navigator.userAgent.includes("wv") && navigator.userAgent.includes("Chrome/")) {
+  if (globalThis.navigator?.userAgent.includes("wv") && globalThis.navigator?.userAgent.includes("Chrome/")) {
     setInterval(() => {
       dialogBoxCreate("SCAM ALERT. This app is not official and you should uninstall it.");
     }, 1000);
@@ -846,30 +857,30 @@ function createScamUpdateText(): void {
 }
 
 function createNewUpdateText() {
-  setTimeout(
-    () =>
-      dialogBoxCreate(
-        "New update!\n" +
-          "Please report any bugs/issues through the GitHub repository " +
-          "or the Bitburner subreddit (reddit.com/r/bitburner).\n\n" +
-          CONSTANTS.LatestUpdate,
-      ),
-    1000,
-  );
+  // setTimeout(
+  //   () =>
+  //     dialogBoxCreate(
+  //       "New update!\n" +
+  //       "Please report any bugs/issues through the GitHub repository " +
+  //       "or the Bitburner subreddit (reddit.com/r/bitburner).\n\n" +
+  //       CONSTANTS.LatestUpdate,
+  //     ),
+  //   1000,
+  // );
 }
 
 function createBetaUpdateText() {
-  setTimeout(
-    () =>
-      dialogBoxCreate(
-        "You are playing on the beta environment! This branch of the game " +
-          "features the latest developments in the game. This version may be unstable.\n" +
-          "Please report any bugs/issues through the github repository (https://github.com/bitburner-official/bitburner-src/issues) " +
-          "or the Bitburner subreddit (reddit.com/r/bitburner).\n\n" +
-          CONSTANTS.LatestUpdate,
-      ),
-    1000,
-  );
+  // setTimeout(
+  //   () =>
+  //     dialogBoxCreate(
+  //       "You are playing on the beta environment! This branch of the game " +
+  //       "features the latest developments in the game. This version may be unstable.\n" +
+  //       "Please report any bugs/issues through the github repository (https://github.com/bitburner-official/bitburner-src/issues) " +
+  //       "or the Bitburner subreddit (reddit.com/r/bitburner).\n\n" +
+  //       CONSTANTS.LatestUpdate,
+  //     ),
+  //   1000,
+  // );
 }
 
 constructorsForReviver.BitburnerSaveObject = BitburnerSaveObject;

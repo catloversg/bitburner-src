@@ -149,7 +149,12 @@ function generateLoadedModule(script: Script, scripts: Map<ScriptFilePath, Scrip
     // script dedupe properly.
     const adjustedCode = newCode + `\n//# sourceURL=${script.server}/${script.filename}`;
     // At this point we have the full code and can construct a new blob / assign the URL.
-    const url = URL.createObjectURL(makeScriptBlob(adjustedCode)) as ScriptURL;
+    let url;
+    if (process.env.RUNTIME_NODE) {
+      url = "data:text/javascript;base64," + Buffer.from(adjustedCode).toString("base64") as ScriptURL;
+    } else {
+      url = URL.createObjectURL(makeScriptBlob(adjustedCode)) as ScriptURL;
+    }
     const module = config.doImport(url).catch((e) => {
       script.invalidateModule();
       console.error(`Error occurred while attempting to compile ${script.filename} on ${script.server}:`);
@@ -160,7 +165,7 @@ function generateLoadedModule(script: Script, scripts: Map<ScriptFilePath, Scrip
     // by starting the import. From now on, any imports using the blob's URL *must*
     // directly return the module, without even attempting to fetch, due to the way
     // modules work.
-    URL.revokeObjectURL(url);
+    // URL.revokeObjectURL(url);
     script.mod = new LoadedModule(url, module);
     moduleCache.set(newCode, new WeakRef(script.mod));
     cleanup.register(script.mod, newCode);

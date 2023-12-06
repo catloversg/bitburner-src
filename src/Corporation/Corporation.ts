@@ -20,6 +20,7 @@ import { formatMoney } from "../ui/formatNumber";
 import { isPositiveInteger } from "../types";
 import { createEnumKeyedRecord, getRecordValues } from "../Types/Record";
 import { getKeyList } from "../utils/helpers/getKeyList";
+import { EventEmitter } from "../utils/EventEmitter";
 
 export const CorporationPromise: PromisePair<CorpStateName> = { promise: null, resolve: null };
 
@@ -27,6 +28,11 @@ interface ICorporationParams {
   name?: string;
   seedFunded?: boolean;
   shareSaleCooldown?: number;
+}
+
+export let CorpEventEmitter: EventEmitter<any[]>;
+if (process.env.HEADLESS_MODE) {
+  CorpEventEmitter = new EventEmitter<any[]>();
 }
 
 export class Corporation {
@@ -152,8 +158,8 @@ export class Corporation {
         if (isNaN(this.funds) || this.funds === Infinity || this.funds === -Infinity) {
           dialogBoxCreate(
             "There was an error calculating your Corporations funds and they got reset to 0. " +
-              "This is a bug. Please report to game developer.\n\n" +
-              "(Your funds have been set to $150b for the inconvenience)",
+            "This is a bug. Please report to game developer.\n\n" +
+            "(Your funds have been set to $150b for the inconvenience)",
           );
           this.funds = 150e9;
         }
@@ -185,6 +191,10 @@ export class Corporation {
         CorporationPromise.resolve(state);
         CorporationPromise.resolve = null;
         CorporationPromise.promise = null;
+      }
+
+      if (process.env.HEADLESS_MODE && state === "START") {
+        CorpEventEmitter.emit("StateStart");
       }
     }
   }

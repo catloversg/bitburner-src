@@ -211,16 +211,18 @@ const Engine: {
     // Due to the way most of these counters are reset, that would probably be
     // OK, but it's much simpler to reason about if we can assume that the
     // entire function has been performed after a save.
-    if (Engine.Counters.autoSaveCounter <= 0) {
-      if (Settings.AutosaveInterval == null) {
-        Settings.AutosaveInterval = 60;
-      }
-      if (Settings.AutosaveInterval === 0) {
-        warnAutosaveDisabled();
-        Engine.Counters.autoSaveCounter = 60 * 5; // Let's check back in a bit
-      } else {
-        Engine.Counters.autoSaveCounter = Settings.AutosaveInterval * 5;
-        saveObject.saveGame(!Settings.SuppressSavedGameToast);
+    if (!process.env.HEADLESS_MODE) {
+      if (Engine.Counters.autoSaveCounter <= 0) {
+        if (Settings.AutosaveInterval == null) {
+          Settings.AutosaveInterval = 60;
+        }
+        if (Settings.AutosaveInterval === 0) {
+          warnAutosaveDisabled();
+          Engine.Counters.autoSaveCounter = 60 * 5; // Let's check back in a bit
+        } else {
+          Engine.Counters.autoSaveCounter = Settings.AutosaveInterval * 5;
+          saveObject.saveGame(!Settings.SuppressSavedGameToast);
+        }
       }
     }
   },
@@ -347,31 +349,37 @@ const Engine: {
 
       Player.lastUpdate = Engine._lastUpdate;
       Engine.start(); // Run main game loop and Scripts loop
-      const timeOfflineString = convertTimeMsToTimeElapsedString(time);
-      setTimeout(
-        () =>
-          AlertEvents.emit(
-            <>
-              <Typography>Offline for {timeOfflineString}. While you were offline:</Typography>
-              <ul>
-                <li>
-                  <Typography>
-                    Your scripts generated <Money money={offlineHackingIncome} />
-                  </Typography>
-                </li>
-                <li>
-                  <Typography>Your Hacknet Nodes generated {hacknetProdInfo}</Typography>
-                </li>
-                <li>
-                  <Typography>
-                    You gained <Reputation reputation={offlineReputation} /> reputation divided amongst your factions
-                  </Typography>
-                </li>
-              </ul>
-            </>,
-          ),
-        250,
-      );
+
+      // @ts-ignore
+      globalThis.Player = Player;
+      // @ts-ignore
+      globalThis.saveObject = saveObject;
+
+      // const timeOfflineString = convertTimeMsToTimeElapsedString(time);
+      // setTimeout(
+      //   () =>
+      //     AlertEvents.emit(
+      //       <>
+      //         <Typography>Offline for {timeOfflineString}. While you were offline:</Typography>
+      //         <ul>
+      //           <li>
+      //             <Typography>
+      //               Your scripts generated <Money money={offlineHackingIncome} />
+      //             </Typography>
+      //           </li>
+      //           <li>
+      //             <Typography>Your Hacknet Nodes generated {hacknetProdInfo}</Typography>
+      //           </li>
+      //           <li>
+      //             <Typography>
+      //               You gained <Reputation reputation={offlineReputation} /> reputation divided amongst your factions
+      //             </Typography>
+      //           </li>
+      //         </ul>
+      //       </>,
+      //     ),
+      //   250,
+      // );
     } else {
       // No save found, start new game
       FormatsNeedToChange.emit();
@@ -401,7 +409,7 @@ const Engine: {
       Player.lastUpdate = _thisUpdate - offset;
       Engine.updateGame(diff);
     }
-    window.setTimeout(Engine.start, CONSTANTS.MilliPerCycle - offset);
+    globalThis.setTimeout(Engine.start, CONSTANTS.MilliPerCycle - offset);
   },
 };
 

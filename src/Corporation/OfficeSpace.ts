@@ -178,19 +178,31 @@ export class OfficeSpace {
   hireRandomEmployee(position: CorpEmployeeJob): boolean {
     if (this.atCapacity()) return false;
 
-    this.totalExperience += getRandomIntInclusive(50, 100);
+    // this.totalExperience += getRandomIntInclusive(50, 100);
 
-    this.avgMorale = (this.avgMorale * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
-    this.avgEnergy = (this.avgEnergy * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgMorale = (this.avgMorale * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgEnergy = (this.avgEnergy * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
 
-    this.avgIntelligence =
-      (this.avgIntelligence * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
-    this.avgCharisma =
-      (this.avgCharisma * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
-    this.avgCreativity =
-      (this.avgCreativity * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
-    this.avgEfficiency =
-      (this.avgEfficiency * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgIntelligence =
+    //   (this.avgIntelligence * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgCharisma =
+    //   (this.avgCharisma * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgCreativity =
+    //   (this.avgCreativity * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+    // this.avgEfficiency =
+    //   (this.avgEfficiency * this.numEmployees + getRandomIntInclusive(50, 100)) / (this.numEmployees + 1);
+
+    // Remove RNG
+    const averageStat = 75;
+    this.totalExperience += averageStat;
+
+    this.avgMorale = (this.avgMorale * this.numEmployees + averageStat) / (this.numEmployees + 1);
+    this.avgEnergy = (this.avgEnergy * this.numEmployees + averageStat) / (this.numEmployees + 1);
+
+    this.avgIntelligence = (this.avgIntelligence * this.numEmployees + averageStat) / (this.numEmployees + 1);
+    this.avgCharisma = (this.avgCharisma * this.numEmployees + averageStat) / (this.numEmployees + 1);
+    this.avgCreativity = (this.avgCreativity * this.numEmployees + averageStat) / (this.numEmployees + 1);
+    this.avgEfficiency = (this.avgEfficiency * this.numEmployees + averageStat) / (this.numEmployees + 1);
 
     ++this.numEmployees;
     ++this.employeeJobs[position];

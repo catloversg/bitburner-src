@@ -31,3 +31,5 @@ dist/*.worker.*
 *.bundle.*
 index.html
 tsdoc-metadata.json
+custom-tools/dist*
+custom-tools/node_modules

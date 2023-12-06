@@ -397,7 +397,9 @@ export function refreshTheme(): void {
     },
   });
 
-  document.body.style.backgroundColor = theme.colors.backgroundprimary?.toString() ?? "black";
+  if (globalThis.document) {
+    globalThis.document.body.style.backgroundColor = theme.colors.backgroundprimary?.toString() ?? "black";
+  }
 }
 refreshTheme();
 

@@ -211,7 +211,7 @@ export const achievements: Record<string, Achievement> = {
   FROZE: {
     ...achievementData.FROZE,
     Icon: "forze",
-    Condition: () => location.href.includes("noScripts"),
+    Condition: () => globalThis.location?.href.includes("noScripts"),
   },
   RUNNING_SCRIPTS_1000: {
     ...achievementData.RUNNING_SCRIPTS_1000,
@@ -734,5 +734,7 @@ export function calculateAchievements(): void {
   // Write all player's achievements to document for Steam/Electron
   // This could be replaced by "availableAchievements"
   // if we don't want to grant the save game achievements to steam but only currently available
-  document.achievements = [...Player.achievements.map((a) => a.ID)];
+  if (globalThis.document) {
+    globalThis.document.achievements = [...Player.achievements.map((a) => a.ID)];
+  }
 }

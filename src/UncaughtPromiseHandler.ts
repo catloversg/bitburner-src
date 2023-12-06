@@ -1,7 +1,7 @@
 import { handleUnknownError } from "./Netscript/ErrorMessages";
 
 export function setupUncaughtPromiseHandler(): void {
-  window.addEventListener("unhandledrejection", (e) => {
+  globalThis.addEventListener?.("unhandledrejection", (e) => {
     e.preventDefault();
     handleUnknownError(
       e.reason,

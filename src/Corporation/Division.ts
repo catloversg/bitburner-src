@@ -985,7 +985,8 @@ export class Division {
     const awareness = (this.awareness + 3 * advMult) * (1.005 * advMult);
     this.awareness = Math.min(awareness, Number.MAX_VALUE);
 
-    const popularity = (this.popularity + 1 * advMult) * ((1 + getRandomIntInclusive(1, 3) / 200) * advMult);
+    // Remove RNG
+    const popularity = (this.popularity + 1 * advMult) * ((1 + 2 / 200) * advMult);
     this.popularity = Math.min(popularity, Number.MAX_VALUE);
 
     ++this.numAdVerts;

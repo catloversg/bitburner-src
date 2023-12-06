@@ -158,6 +158,7 @@ export const GameOptionsSidebar = (props: IProps): React.ReactElement => {
           </Button>
         </Tooltip>
         <ConfirmationModal
+          autoConfirm={true}
           open={importSaveOpen}
           onClose={() => setImportSaveOpen(false)}
           onConfirm={() => confirmedImportGame()}

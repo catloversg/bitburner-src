@@ -395,7 +395,7 @@ function createAutoexec(server: BaseServer): RunningScript | null {
  * into worker scripts so that they will start running
  */
 export function loadAllRunningScripts(): void {
-  const skipScriptLoad = window.location.href.toLowerCase().includes("?noscripts");
+  const skipScriptLoad = globalThis.location?.href.toLowerCase().includes("?noscripts");
   if (skipScriptLoad) {
     Terminal.warn("Skipped loading player scripts during startup");
     console.info("Skipping the load of any scripts during startup");
