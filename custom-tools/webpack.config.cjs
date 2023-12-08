@@ -4,7 +4,7 @@ const webpack = require("webpack");
 
 module.exports = (env, argv) => {
   const entries = {};
-  for (let file of fg.sync(["./benchmark/controller.ts", "./benchmark/corporation.ts"])) {
+  for (const file of fg.sync(["./benchmark/controller.ts", "./benchmark/corporation.ts"])) {
     const fullPath = path.resolve(__dirname, file);
     const name = path.relative("./", file).replace(path.extname(file), "");
     entries[name] = fullPath;
