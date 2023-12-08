@@ -165,7 +165,7 @@ function generateLoadedModule(script: Script, scripts: Map<ScriptFilePath, Scrip
     // by starting the import. From now on, any imports using the blob's URL *must*
     // directly return the module, without even attempting to fetch, due to the way
     // modules work.
-    // URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
     script.mod = new LoadedModule(url, module);
     moduleCache.set(newCode, new WeakRef(script.mod));
     cleanup.register(script.mod, newCode);

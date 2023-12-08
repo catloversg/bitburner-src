@@ -28,6 +28,8 @@ export class Corporation {
       console.error("Script has already been initialized");
       return;
     }
+    // Patch URL.revokeObjectURL
+    URL.revokeObjectURL = () => { };
     const saveDataString = readFileSync(data.saveFilePath).toString();
     if (!saveDataString) {
       console.error("Invalid save data");
@@ -44,7 +46,7 @@ export class Corporation {
       }
     });
 
-    // for (let [scriptFilePath, script] of home.scripts.entries()) {
+    // for (const [scriptFilePath, script] of home.scripts.entries()) {
     //   console.log(`scriptFilePath: `, scriptFilePath);
     //   console.log(`script: `, script);
     // }
