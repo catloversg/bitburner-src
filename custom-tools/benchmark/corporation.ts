@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { setTimeout as nodeSetTimeout } from "node:timers/promises";
 import { parentPort } from "node:worker_threads";
 import { expose } from "comlink";
-// @ts-ignore
+// @ts-expect-error import node-adapter.mjs
 import nodeEndpoint from "comlink/dist/esm/node-adapter.mjs";
 
 import { CorpEventEmitter } from "../../src/Corporation/Corporation";
@@ -23,13 +23,14 @@ enum RoundTarget {
 export class Corporation {
   private isInitialized = false;
 
-  public async init(data: InitData) {
+  public init(data: InitData) {
     if (this.isInitialized) {
       console.error("Script has already been initialized");
       return;
     }
     // Patch URL.revokeObjectURL
-    URL.revokeObjectURL = () => { };
+    URL.revokeObjectURL = () => {
+    };
     const saveDataString = readFileSync(data.saveFilePath).toString();
     if (!saveDataString) {
       console.error("Invalid save data");
@@ -55,67 +56,65 @@ export class Corporation {
 
   public async runCommands(commands: string): Promise<{
     success: boolean,
-    data: any[];
+    data: InvestmentRoundSample[];
   }> {
-    return new Promise(async (resolve, reject) => {
-      if (!this.isInitialized) {
-        reject("Script has not been initialized");
-        return;
+    if (!this.isInitialized) {
+      throw new Error("Script has not been initialized");
+    }
+    let round = 0;
+    if (commands.includes("--round1")) {
+      round = 1;
+    } else if (commands.includes("--round2")) {
+      round = 2;
+    } else if (commands.includes("--round3")) {
+      round = 3;
+    } else if (commands.includes("--round4")) {
+      round = 4;
+    }
+    if (!Player.corporation && round != 1) {
+      throw new Error("Corporation does not exist");
+    }
+    Terminal.executeCommands(commands);
+    while (true) {
+      await nodeSetTimeout(1000);
+      if (Player.corporation) {
+        break;
       }
-      let round = 0;
-      if (commands.includes("--round1")) {
-        round = 1;
-      } else if (commands.includes("--round2")) {
-        round = 2;
-      } else if (commands.includes("--round3")) {
-        round = 3;
-      } else if (commands.includes("--round4")) {
-        round = 4;
-      }
-      if (!Player.corporation && round != 1) {
-        reject("Corporation does not exist");
-        return;
-      }
-      Terminal.executeCommands(commands);
-      while (true) {
-        await nodeSetTimeout(1000);
-        if (Player.corporation) {
-          break;
-        }
-      }
+    }
 
-      Terminal.executeCommands("run daemon.js --maintainCorporation;");
-      Player.corporation.storedCycles = 1e6;
+    Terminal.executeCommands("run daemon.js --maintainCorporation;");
+    Player.corporation.storedCycles = 1e6;
 
-      let target = 0;
-      // Increase maxCycle and maxSampleCount in round > 1
-      let balancingMultiplier = 1;
-      switch (round) {
-        case 1:
-          target = RoundTarget.ROUND1;
-          break;
-        case 2:
-          target = RoundTarget.ROUND2;
-          balancingMultiplier = 1.5;
-          break;
-        case 3:
-          target = RoundTarget.ROUND3;
-          break;
-        case 4:
-          target = RoundTarget.ROUND4;
-          break;
-        default:
-          target = Number.MAX_SAFE_INTEGER;
-          break;
-      }
-      const maxSampleCount = 20 * balancingMultiplier;
-      let samples: InvestmentRoundSample[] = [];
-      let reachTarget = false;
+    let target = 0;
+    // Increase maxCycle and maxSampleCount in round > 1
+    let balancingMultiplier = 1;
+    switch (round) {
+      case 1:
+        target = RoundTarget.ROUND1;
+        break;
+      case 2:
+        target = RoundTarget.ROUND2;
+        balancingMultiplier = 1.5;
+        break;
+      case 3:
+        target = RoundTarget.ROUND3;
+        break;
+      case 4:
+        target = RoundTarget.ROUND4;
+        break;
+      default:
+        target = Number.MAX_SAFE_INTEGER;
+        break;
+    }
+    const maxSampleCount = 20 * balancingMultiplier;
+    const samples: InvestmentRoundSample[] = [];
+    let reachTarget = false;
+    return new Promise((resolve) => {
       CorpEventEmitter.subscribe(values => {
         if (values !== "StateStart") {
           return;
         }
-        let offer = Player.corporation!.getInvestmentOffer().funds;
+        const offer = Player.corporation!.getInvestmentOffer().funds;
         if (Player.corporation!.getInvestmentOffer().funds < target * 0.5) {
           return;
         }

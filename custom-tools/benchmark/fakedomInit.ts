@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom";
 
 const dom = new JSDOM("<!doctype html><html lang='en'></html>", { pretendToBeVisual: true });
-// @ts-ignore
+// @ts-expect-error jsdom
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.navigator = dom.window.navigator;

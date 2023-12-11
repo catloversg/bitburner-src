@@ -13,7 +13,6 @@ import { createFullRecordFromEntries } from "../src/Types/Record";
 
 function makeOutputDirectory(): string {
   const outputPath = resolve(
-    // @ts-ignore
     dirname(fileURLToPath(import.meta.url)),
     "data",
   );
@@ -21,7 +20,7 @@ function makeOutputDirectory(): string {
   return outputPath;
 }
 
-function generateData(data: any, exportVariableName: string, filename: string, customType: string = "") {
+function generateData(data: unknown, exportVariableName: string, filename: string, customType: string = "") {
   writeFileSync(
     resolve(
       makeOutputDirectory(),

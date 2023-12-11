@@ -13,7 +13,7 @@ function median(numbers: number[]) {
 
 function benchmarkInvestmentRound() {
   const processedData: InvestmentRoundSample[] = [];
-  for (let file of fg.sync(["./dist-esbuild/benchmark/data/*.json"])) {
+  for (const file of fg.sync(["./dist-esbuild/benchmark/data/*.json"])) {
     const dataString = readFileSync(file).toString();
     const data = JSON.parse(dataString);
     processedData.push(...data.processedData);
