@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { Engine } from "../src/engine";
 import { saveObject } from "../src/SaveObject";
 import { Player } from "../src/Player";
