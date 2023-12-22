@@ -254,7 +254,9 @@ export class Division {
   processProductMarket(marketCycles = 1): void {
     // Demand gradually decreases, and competition gradually increases
     for (const product of this.products.values()) {
-      let change = getRandomIntInclusive(0, 3) * 0.0004;
+      // Remove RNG
+      // let change = getRandomIntInclusive(0, 3) * 0.0004;
+      let change = 1.5 * 0.0004;
       if (change === 0) continue;
 
       if (

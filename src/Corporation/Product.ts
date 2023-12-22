@@ -202,7 +202,9 @@ export class Product {
 
     this.demand =
       division.awareness === 0 ? 20 : Math.min(100, advMult * (100 * (division.popularity / division.awareness)));
-    this.competition = getRandomIntInclusive(0, 70);
+    // Remove RNG
+    // this.competition = getRandomIntInclusive(0, 70);
+    this.competition = 35;
 
     //Calculate the product's required materials and size
     this.size = 0;
