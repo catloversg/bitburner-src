@@ -35,6 +35,21 @@ if (process.env.HEADLESS_MODE) {
   CorpEventEmitter = new EventEmitter<any[]>();
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var corporationCycleHistory: CycleData[];
+}
+
+interface CycleData {
+  cycle: number;
+  divisions: Corporation["divisions"];
+  funds: Corporation["funds"];
+  revenue: Corporation["revenue"];
+  expenses: Corporation["expenses"];
+  fundingRound: Corporation["fundingRound"];
+  upgrades: Corporation["upgrades"];
+}
+
 export class Corporation {
   name = "The Corporation";
 
@@ -81,6 +96,8 @@ export class Corporation {
 
   // This is used for calculating cycle valuation.
   numberOfOfficesAndWarehouses = 0;
+
+  cycleCount = 0;
 
   constructor(params: ICorporationParams = {}) {
     this.name = params.name || "The Corporation";
@@ -182,6 +199,20 @@ export class Corporation {
         this.cycleValuation = this.determineCycleValuation();
         this.determineValuation();
         this.updateSharePrice();
+
+        ++this.cycleCount;
+        if (!globalThis.corporationCycleHistory) {
+          globalThis.corporationCycleHistory = [];
+        }
+        globalThis.corporationCycleHistory.push({
+          cycle: this.cycleCount,
+          divisions: this.divisions,
+          funds: this.funds,
+          revenue: this.revenue,
+          expenses: this.expenses,
+          fundingRound: this.fundingRound,
+          upgrades: this.upgrades,
+        });
       }
 
       this.state.incrementState();
