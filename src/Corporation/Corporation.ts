@@ -37,6 +37,8 @@ if (process.env.HEADLESS_MODE) {
 
 declare global {
   // eslint-disable-next-line no-var
+  var corporationCycleCount: number;
+  // eslint-disable-next-line no-var
   var corporationCycleHistory: CycleData[];
 }
 
@@ -201,6 +203,7 @@ export class Corporation {
         this.updateSharePrice();
 
         ++this.cycleCount;
+        globalThis.corporationCycleCount = this.cycleCount;
         if (!globalThis.corporationCycleHistory) {
           globalThis.corporationCycleHistory = [];
         }
