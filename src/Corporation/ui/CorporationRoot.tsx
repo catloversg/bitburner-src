@@ -29,9 +29,15 @@ export function CorporationRoot(): React.ReactElement {
     <Context.Corporation.Provider value={corporation}>
       <Tabs variant="scrollable" value={divisionName} onChange={handleChange} sx={{ maxWidth: "65vw" }} scrollButtons>
         <Tab label={corporation.name} value={"Overview"} />
-        {[...corporation.divisions.values()].map((div) => (
-          <Tab key={div.name} label={div.name} value={div.name} />
-        ))}
+        {
+          [...corporation.divisions.values()]
+            .sort((a, b) => {
+              return a.name.localeCompare(b.name);
+            })
+            .map((div) => (
+              <Tab key={div.name} label={div.name} value={div.name} />
+            ))
+        }
         {canExpand && <Tab label={"Expand"} value={-1} />}
       </Tabs>
       {divisionName === "Overview" && <Overview rerender={rerender} />}
