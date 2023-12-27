@@ -78,9 +78,9 @@ async function run() {
           scripts: scripts,
         }).then(async () => {
           const result = await corporationWorker.runCommands(
-            "run corporation.js --round1",
-            // "run corporation.js --round2",
-            // "run corporation.js --round3",
+            "run corporation.js --round1 --benchmark",
+            // "run corporation.js --round2 --benchmark",
+            // "run corporation.js --round3 --benchmark",
           );
           const samples = result.data;
           const bestSample = [...samples]
