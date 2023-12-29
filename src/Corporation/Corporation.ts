@@ -206,12 +206,12 @@ export class Corporation {
         }
         globalThis.corporationCycleHistory.push({
           cycle: this.cycleCount,
-          divisions: this.divisions,
+          divisions: structuredClone(this.divisions),
           funds: this.funds,
           revenue: this.revenue,
           expenses: this.expenses,
           fundingRound: this.fundingRound,
-          upgrades: this.upgrades,
+          upgrades: structuredClone(this.upgrades),
         });
       }
 
