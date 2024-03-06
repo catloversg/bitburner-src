@@ -119,6 +119,7 @@ function buildCustomTools() {
         "process.env.SCRIPT_EXTENSION": `"${scriptExtension}"`,
       },
       banner: banner,
+      external: ["canvas"],
     })
     .catch((reason) => console.error(reason));
 }
@@ -155,6 +156,7 @@ buildCustomTools();
 //     plugins: [
 //       jsdomPatch,
 //     ],
+//     external: ["canvas"],
 //   });
 // }
 //
