@@ -7,7 +7,7 @@ const saveFilePath = "input.json";
 const outputFilePath = "output.json";
 
 const saveDataString = readFileSync(saveFilePath).toString();
-Engine.load(saveDataString);
+await Engine.load(saveDataString);
 Player.money = 0;
-writeFileSync(outputFilePath, saveObject.getSaveString(true, true));
+writeFileSync(outputFilePath, await saveObject.getSaveData(true, true));
 process.exit(0);

@@ -15,7 +15,7 @@ import { InitData, InvestmentRoundSample } from "./controller";
 
 enum RoundTarget {
   ROUND1 = 420e9,
-  ROUND2 = 20e12,
+  ROUND2 = 10e12,
   ROUND3 = Number.MAX_SAFE_INTEGER,
   ROUND4 = Number.MAX_SAFE_INTEGER,
 }
@@ -23,7 +23,7 @@ enum RoundTarget {
 export class Corporation {
   private isInitialized = false;
 
-  public init(data: InitData) {
+  public async init(data: InitData): Promise<void> {
     if (this.isInitialized) {
       console.error("Script has already been initialized");
       return;
@@ -36,7 +36,7 @@ export class Corporation {
       console.error("Invalid save data");
       return;
     }
-    Engine.load(saveDataString);
+    await Engine.load(saveDataString);
     Engine.start();
 
     const home = Player.getHomeComputer();

@@ -34,7 +34,7 @@ export function Reviver(_key: string, value: unknown): any {
       case "Employee": // Entire object removed from game in v2.2.0 (employees abstracted)
       case "Company": // Reviver removed in v2.6.1
       case "Faction": // Reviver removed in v2.6.1
-        console.warn(`Legacy load type ${value.ctor} converted to expected format while loading.`);
+        // console.warn(`Legacy load type ${value.ctor} converted to expected format while loading.`);
         return value.data;
       case "ActionIdentifier": // No longer a class as of v2.6.1
         return loadActionIdentifier(value.data);

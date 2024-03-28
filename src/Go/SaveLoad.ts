@@ -46,10 +46,10 @@ export function getGoSave(): SaveFormat {
 export function loadGo(data: unknown): boolean {
   /** Function for ending the loading process, showing an error if there is one, and indicating load success/failure */
   function showError(error: unknown): boolean {
-    console.warn("Encountered the following issue while loading Go savedata:");
-    console.error(error);
-    console.warn("Savedata:");
-    console.error(data);
+    // console.warn("Encountered the following issue while loading Go savedata:");
+    // console.error(error);
+    // console.warn("Savedata:");
+    // console.error(data);
     return false;
   }
   if (!data) return showError("There was no go savedata");
