@@ -1691,6 +1691,15 @@ export type Task = StudyTask | CompanyWorkTask | CreateProgramWorkTask | CrimeTa
  */
 export interface Singularity {
   /**
+   * This function returns the save data. If your browser supports Compression Streams API, the save data is a
+   * `Uint8Array`; otherwise, it's a `string`.
+   *
+   * @remarks
+   * RAM cost: 1 GB * 16/4/1
+   */
+  getSaveData(): Promise<Uint8Array | string>;
+
+  /**
    * Backup game save.
    * @remarks
    * RAM cost: 1 GB * 16/4/1

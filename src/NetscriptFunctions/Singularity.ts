@@ -1149,6 +1149,10 @@ export function NetscriptSingularity(): InternalAPI<ISingularity> {
       if (!Player.currentWork) return null;
       return Player.currentWork.APICopy() as ITask;
     },
+    getSaveData: (ctx) => () => {
+      helpers.checkSingularityAccess(ctx);
+      return saveObject.getSaveData();
+    },
     exportGame: (ctx) => () => {
       helpers.checkSingularityAccess(ctx);
       onExport();

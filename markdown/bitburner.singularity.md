@@ -55,6 +55,7 @@ This API requires Source-File 4 to use. The RAM cost of all these functions is m
 |  [getFactionRep(faction)](./bitburner.singularity.getfactionrep.md) | Get faction reputation. |
 |  [getOwnedAugmentations(purchased)](./bitburner.singularity.getownedaugmentations.md) | Get a list of owned augmentation. |
 |  [getOwnedSourceFiles()](./bitburner.singularity.getownedsourcefiles.md) | Get a list of acquired Source-Files. |
+|  [getSaveData()](./bitburner.singularity.getsavedata.md) | This function returns the save data. If your browser supports Compression Streams API, the save data is a <code>Uint8Array</code>; otherwise, it's a <code>string</code>. |
 |  [getUpgradeHomeCoresCost()](./bitburner.singularity.getupgradehomecorescost.md) | Get the price of upgrading home cores. |
 |  [getUpgradeHomeRamCost()](./bitburner.singularity.getupgradehomeramcost.md) | Get the price of upgrading home RAM. |
 |  [goToLocation(locationName)](./bitburner.singularity.gotolocation.md) | Go to a location. |

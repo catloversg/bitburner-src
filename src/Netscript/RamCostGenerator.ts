@@ -208,6 +208,7 @@ const singularity = {
   installAugmentations: SF4Cost(RamCostConstants.SingularityFn3),
   isFocused: SF4Cost(0.1),
   setFocus: SF4Cost(0.1),
+  getSaveData: SF4Cost(RamCostConstants.SingularityFn1 / 2),
   exportGame: SF4Cost(RamCostConstants.SingularityFn1 / 2),
   exportGameBonus: SF4Cost(RamCostConstants.SingularityFn1 / 4),
   b1tflum3: SF4Cost(16),
