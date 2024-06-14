@@ -4,16 +4,16 @@
 
 ## Singularity.getSaveData() method
 
-This function returns the save data. If your browser supports Compression Streams API, the save data is a `Uint8Array`<!-- -->; otherwise, it's a `string`<!-- -->.
+This function returns the save data.
 
 **Signature:**
 
 ```typescript
-getSaveData(): Promise<Uint8Array | string>;
+getSaveData(): Promise<Uint8Array>;
 ```
 **Returns:**
 
-Promise&lt;Uint8Array \| string&gt;
+Promise&lt;Uint8Array&gt;
 
 ## Remarks
 

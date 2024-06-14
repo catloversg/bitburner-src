@@ -1149,9 +1149,16 @@ export function NetscriptSingularity(): InternalAPI<ISingularity> {
       if (!Player.currentWork) return null;
       return Player.currentWork.APICopy() as ITask;
     },
-    getSaveData: (ctx) => () => {
+    getSaveData: (ctx) => async () => {
       helpers.checkSingularityAccess(ctx);
-      return saveObject.getSaveData();
+      const saveData = await saveObject.getSaveData();
+      if (typeof saveData === "string") {
+        // saveData is the base64-encoded json save string. A base64-encoded string only uses ASCII characters, so it's
+        // fine to use new TextEncoder().encode() to encode it to a Uint8Array.
+        return new TextEncoder().encode(saveData);
+      }
+      // saveData is the compressed json save string.
+      return saveData;
     },
     exportGame: (ctx) => () => {
       helpers.checkSingularityAccess(ctx);
