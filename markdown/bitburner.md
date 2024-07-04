@@ -11,6 +11,7 @@
 |  [CityName](./bitburner.cityname.md) | Names of all cities |
 |  [CompanyName](./bitburner.companyname.md) | Names of all companies |
 |  [CrimeType](./bitburner.crimetype.md) |  |
+|  [FactionName](./bitburner.factionname.md) | Names of all factions |
 |  [FactionWorkType](./bitburner.factionworktype.md) |  |
 |  [GymType](./bitburner.gymtype.md) |  |
 |  [JobField](./bitburner.jobfield.md) |  |
