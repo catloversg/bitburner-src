@@ -127,6 +127,11 @@ module.exports = (env, argv) => {
           module: true,
         }),
       enableReactRefresh && new ReactRefreshWebpackPlugin(),
+      // See https://github.com/babel/babel/issues/14301
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.$   /,
+        contextRegExp: /node_modules\/@babel\/standalone/,
+      }),
     ].filter(Boolean),
     target: "web",
     entry: entry,
@@ -157,6 +162,13 @@ module.exports = (env, argv) => {
         {
           resourceQuery: /raw/,
           type: "asset/source",
+        },
+        // See https://github.com/babel/babel/issues/14301
+        {
+          include: path.resolve(__dirname, "node_modules/@babel/standalone/babel.js"),
+          parser: {
+            exprContextCritical: false,
+          },
         },
       ],
     },
