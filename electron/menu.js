@@ -6,6 +6,7 @@ const api = require("./api-server");
 const utils = require("./utils");
 const storage = require("./storage");
 const store = new Store();
+const { steamworksClient } = require("./steamworksUtils");
 
 function getMenu(window) {
   const canZoomIn = utils.getZoomFactor() <= 2;
@@ -55,7 +56,7 @@ function getMenu(window) {
         },
         {
           label: "Export Scripts",
-          click: async () => window.webContents.send("trigger-scripts-export"),
+          click: () => window.webContents.send("trigger-scripts-export"),
         },
         {
           type: "separator",
@@ -75,7 +76,7 @@ function getMenu(window) {
         {
           label: "Load From File",
           click: async () => {
-            const defaultPath = await storage.getSaveFolder(window);
+            const defaultPath = storage.getSaveFolder(window);
             const result = await dialog.showOpenDialog(window, {
               title: "Load From File",
               defaultPath: defaultPath,
@@ -104,7 +105,7 @@ function getMenu(window) {
           click: async () => {
             try {
               const saveData = await storage.getSteamCloudSaveData();
-              await storage.pushSaveGameForImport(window, saveData, false);
+              storage.pushSaveGameForImport(window, saveData, false);
             } catch (error) {
               log.error(error);
               utils.writeToast(window, "Could not load from Steam Cloud", "error", 5000);
@@ -127,7 +128,7 @@ function getMenu(window) {
         {
           label: "Auto-Save to Steam Cloud",
           type: "checkbox",
-          enabled: !global.greenworksError,
+          enabled: steamworksClient !== undefined,
           checked: storage.isCloudEnabled(),
           click: (menuItem) => {
             storage.setCloudEnabledConfig(menuItem.checked);
@@ -167,8 +168,8 @@ function getMenu(window) {
             },
             {
               label: "Open Saves Directory",
-              click: async () => {
-                const path = await storage.getSaveFolder(window);
+              click: () => {
+                const path = storage.getSaveFolder(window);
                 shell.openPath(path);
               },
             },
@@ -259,7 +260,7 @@ function getMenu(window) {
         },
         {
           label: api.isAutostart() ? "Disable Autostart" : "Enable Autostart",
-          click: async () => {
+          click: () => {
             api.toggleAutostart();
             if (api.isAutostart()) {
               utils.writeToast(window, "Enabled API Server Autostart", "success");
@@ -271,7 +272,7 @@ function getMenu(window) {
         },
         {
           label: "Copy Auth Token",
-          click: async () => {
+          click: () => {
             const token = api.getAuthenticationToken();
             log.log("Wrote authentication token to clipboard");
             clipboard.writeText(token);
@@ -364,10 +365,15 @@ function getMenu(window) {
         },
         {
           label: "Delete Steam Cloud Data",
-          enabled: !global.greenworksError,
-          click: async () => {
+          enabled: steamworksClient !== undefined,
+          click: () => {
+            if (steamworksClient.cloud.listFiles().length === 0) {
+              return;
+            }
             try {
-              await storage.deleteCloudFile();
+              if (!storage.deleteCloudFile()) {
+                log.warn("Cannot delete Steam Cloud data");
+              }
             } catch (error) {
               log.error(error);
             }

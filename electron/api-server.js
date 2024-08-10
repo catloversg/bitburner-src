@@ -10,7 +10,7 @@ let window;
 
 async function initialize(win) {
   window = win;
-  server = http.createServer(async function (req, res) {
+  server = http.createServer(function (req, res) {
     let body = "";
     res.setHeader("Content-Type", "application/json");
 

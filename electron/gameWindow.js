@@ -72,7 +72,7 @@ async function createWindow(killall) {
   }
 
   menu.refreshMenu(window);
-  setStopProcessHandler(app, window);
+  setStopProcessHandler(window);
 
   return window;
 }
