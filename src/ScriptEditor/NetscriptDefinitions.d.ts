@@ -8468,7 +8468,7 @@ export interface WarehouseAPI {
  */
 export interface Corporation extends WarehouseAPI, OfficeAPI {
   /**
-   * Returns whether the player has a corporation. Does not require API access.
+   * Return whether the player has a corporation. Does not require API access.
    *
    * @remarks
    * RAM cost: 0 GB
@@ -8478,19 +8478,24 @@ export interface Corporation extends WarehouseAPI, OfficeAPI {
   hasCorporation(): boolean;
 
   /**
-   * Create a Corporation.
+   * Return whether the player can create a corporation. Does not require API access.
+   *
+   * @remarks
+   * RAM cost: 0 GB
+   *
+   * @param selfFund - true if you want to self-fund, false otherwise
+   * @returns Whether the player can create a corporation
+   */
+  canCreateCorporation(selfFund: boolean): boolean;
+
+  /**
+   * Create a Corporation. You should use {@link Corporation.canCreateCorporation | canCreateCorporation} to check if
+   * you can do it before using this function, because it throws an error in some cases.
    *
    * @remarks
    * RAM cost: 20 GB
    *
-   * This function throws an error if:
-   *
-   * - Try to self-fund outside BitNode 3.
-   *
-   * - Be in a BitNode that has CorporationSoftcap (a BN modifier) less than 0.15. Use
-   * {@link NS.getBitNodeMultipliers | getBitNodeMultipliers} to get the value of this modifier.
-   *
-   * @param corporationName - Name of the corporation
+   * @param corporationName - Name of the corporation. It must be a non-empty string.
    * @param selfFund - If you want to self-fund. Defaults to true, false will only work in BitNode 3.
    * @returns true if created and false if not
    */

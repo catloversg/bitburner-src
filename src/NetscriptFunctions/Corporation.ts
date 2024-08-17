@@ -64,7 +64,12 @@ import { InternalAPI, NetscriptContext, setRemovedFunctions } from "../Netscript
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
 import { MaterialInfo } from "../Corporation/MaterialInfo";
-import { calculateOfficeSizeUpgradeCost, calculateUpgradeCost } from "../Corporation/helpers";
+import {
+  CreatingCorporationCheckResult,
+  calculateOfficeSizeUpgradeCost,
+  calculateUpgradeCost,
+  canCreateCorporation,
+} from "../Corporation/helpers";
 import { PositiveInteger } from "../types";
 import { getRecordKeys } from "../Types/Record";
 
@@ -588,6 +593,22 @@ export function NetscriptCorporation(): InternalAPI<NSCorporation> {
     ...warehouseAPI,
     ...officeAPI,
     hasCorporation: () => () => !!Player.corporation,
+    canCreateCorporation: (ctx) => (_selfFund) => {
+      const selfFund = !!_selfFund;
+      const checkResult = canCreateCorporation(selfFund, false);
+      if (checkResult !== CreatingCorporationCheckResult.Success) {
+        helpers.log(ctx, () => checkResult);
+        return false;
+      }
+      return true;
+    },
+    createCorporation:
+      (ctx) =>
+      (_corporationName, _selfFund = true): boolean => {
+        const corporationName = helpers.string(ctx, "corporationName", _corporationName);
+        const selfFund = !!_selfFund;
+        return createCorporation(corporationName, selfFund, false);
+      },
     getConstants: () => () => {
       /* TODO 2.2: possibly just rework the whole corp constants structure to be more readable, and just use
        *           structuredClone to provide it directly to player.
@@ -691,13 +712,6 @@ export function NetscriptCorporation(): InternalAPI<NSCorporation> {
       });
       return data;
     },
-    createCorporation:
-      (ctx) =>
-      (_corporationName, _selfFund = true): boolean => {
-        const corporationName = helpers.string(ctx, "corporationName", _corporationName);
-        const selfFund = !!_selfFund;
-        return createCorporation(corporationName, selfFund, false);
-      },
     hasUnlock: (ctx) => (_unlockName) => {
       checkAccess(ctx);
       const unlockName = getEnumHelper("CorpUnlockName").nsGetMember(ctx, _unlockName, "unlockName");

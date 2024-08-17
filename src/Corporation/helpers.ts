@@ -4,6 +4,31 @@ import { formatShares } from "../ui/formatNumber";
 import { Corporation } from "./Corporation";
 import { CorpUpgrade } from "./data/CorporationUpgrades";
 import * as corpConstants from "./data/Constants";
+import { currentNodeMults } from "../BitNode/BitNodeMultipliers";
+
+export enum CreatingCorporationCheckResult {
+  Success = "Success",
+  NoSf3OrDisabled = "You don't have SF3 or Corporation is disabled by an advanced option",
+  CorporationExists = "Corporation exists",
+  UseSeedMoneyOutsideBN3 = "You cannot use seed money outside BitNode 3",
+  DisabledBySoftCap = "You cannot create a corporation in this BitNode",
+}
+
+export function canCreateCorporation(selfFund: boolean, restart: boolean): CreatingCorporationCheckResult {
+  if (!Player.canAccessCorporation()) {
+    return CreatingCorporationCheckResult.NoSf3OrDisabled;
+  }
+  if (Player.corporation && !restart) {
+    return CreatingCorporationCheckResult.CorporationExists;
+  }
+  if (Player.bitNodeN !== 3 && !selfFund) {
+    return CreatingCorporationCheckResult.UseSeedMoneyOutsideBN3;
+  }
+  if (currentNodeMults.CorporationSoftcap < 0.15) {
+    return CreatingCorporationCheckResult.DisabledBySoftCap;
+  }
+  return CreatingCorporationCheckResult.Success;
+}
 
 export function costOfCreatingCorporation(restart: boolean): number {
   if (restart && !Player.corporation?.seedFunded) {

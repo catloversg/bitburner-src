@@ -399,6 +399,7 @@ const grafting = {
 
 const corporation = {
   hasCorporation: 0,
+  canCreateCorporation: 0,
   createCorporation: RamCostConstants.CorporationAction,
   hasUnlock: RamCostConstants.CorporationInfo,
   getUnlockCost: RamCostConstants.CorporationInfo,
