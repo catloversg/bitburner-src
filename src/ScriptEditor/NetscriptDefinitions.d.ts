@@ -8490,7 +8490,11 @@ export interface Corporation extends WarehouseAPI, OfficeAPI {
 
   /**
    * Create a Corporation. You should use {@link Corporation.canCreateCorporation | canCreateCorporation} to check if
-   * you can do it before using this function, because it throws an error in some cases.
+   * you are unsure you can do it, because it throws an error in these cases:
+   *
+   * - Use seed money outside BitNode 3.
+   *
+   * - Be in a BitNode that has CorporationSoftcap (a BitNode modifier) less than 0.15.
    *
    * @remarks
    * RAM cost: 20 GB

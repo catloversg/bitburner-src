@@ -21,7 +21,7 @@ export interface Corporation extends WarehouseAPI, OfficeAPI
 |  [bribe(factionName, amountCash)](./bitburner.corporation.bribe.md) | Bribe a faction. |
 |  [buyBackShares(amount)](./bitburner.corporation.buybackshares.md) | Buyback shares. Spend money from the player's wallet to transfer shares from public traders to the CEO. |
 |  [canCreateCorporation(selfFund)](./bitburner.corporation.cancreatecorporation.md) | Return whether the player can create a corporation. Does not require API access. |
-|  [createCorporation(corporationName, selfFund)](./bitburner.corporation.createcorporation.md) | Create a Corporation. You should use [canCreateCorporation](./bitburner.corporation.cancreatecorporation.md) to check if you can do it before using this function, because it throws an error in some cases. |
+|  [createCorporation(corporationName, selfFund)](./bitburner.corporation.createcorporation.md) | <p>Create a Corporation. You should use [canCreateCorporation](./bitburner.corporation.cancreatecorporation.md) to check if you are unsure you can do it, because it throws an error in these cases:</p><p>- Use seed money outside BitNode 3.</p><p>- Be in a BitNode that has CorporationSoftcap (a BitNode modifier) less than 0.15.</p> |
 |  [expandCity(divisionName, city)](./bitburner.corporation.expandcity.md) | Expand to a new city. |
 |  [expandIndustry(industryType, divisionName)](./bitburner.corporation.expandindustry.md) | Expand to a new industry. |
 |  [getBonusTime()](./bitburner.corporation.getbonustime.md) | Get bonus time. Bonus time is accumulated when the game is offline or if the game is inactive in the browser. Bonus time makes the corporation progress faster. |

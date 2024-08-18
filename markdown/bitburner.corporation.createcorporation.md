@@ -4,7 +4,11 @@
 
 ## Corporation.createCorporation() method
 
-Create a Corporation. You should use [canCreateCorporation](./bitburner.corporation.cancreatecorporation.md) to check if you can do it before using this function, because it throws an error in some cases.
+Create a Corporation. You should use [canCreateCorporation](./bitburner.corporation.cancreatecorporation.md) to check if you are unsure you can do it, because it throws an error in these cases:
+
+- Use seed money outside BitNode 3.
+
+- Be in a BitNode that has CorporationSoftcap (a BitNode modifier) less than 0.15.
 
 **Signature:**
 
