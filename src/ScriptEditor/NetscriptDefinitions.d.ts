@@ -8463,6 +8463,17 @@ export interface WarehouseAPI {
 }
 
 /**
+ * @public
+ */
+declare enum CreatingCorporationCheckResult {
+  Success = "Success",
+  NoSf3OrDisabled = "NoSf3OrDisabled",
+  CorporationExists = "CorporationExists",
+  UseSeedMoneyOutsideBN3 = "UseSeedMoneyOutsideBN3",
+  DisabledBySoftCap = "DisabledBySoftCap",
+}
+
+/**
  * Corporation API
  * @public
  */
@@ -8484,9 +8495,9 @@ export interface Corporation extends WarehouseAPI, OfficeAPI {
    * RAM cost: 0 GB
    *
    * @param selfFund - true if you want to self-fund, false otherwise
-   * @returns Whether the player can create a corporation
+   * @returns Result of the check
    */
-  canCreateCorporation(selfFund: boolean): boolean;
+  canCreateCorporation(selfFund: boolean): CreatingCorporationCheckResult;
 
   /**
    * Create a Corporation. You should use {@link Corporation.canCreateCorporation | canCreateCorporation} to check if

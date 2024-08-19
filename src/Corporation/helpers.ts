@@ -5,13 +5,26 @@ import { Corporation } from "./Corporation";
 import { CorpUpgrade } from "./data/CorporationUpgrades";
 import * as corpConstants from "./data/Constants";
 import { currentNodeMults } from "../BitNode/BitNodeMultipliers";
+import { CreatingCorporationCheckResult } from "@enums";
 
-export enum CreatingCorporationCheckResult {
-  Success = "Success",
-  NoSf3OrDisabled = "You don't have SF3 or Corporation is disabled by an advanced option",
-  CorporationExists = "Corporation exists",
-  UseSeedMoneyOutsideBN3 = "You cannot use seed money outside BitNode 3",
-  DisabledBySoftCap = "You cannot create a corporation in this BitNode",
+export function convertCreatingCorporationCheckResultToMessage(checkResult: CreatingCorporationCheckResult): string {
+  switch (checkResult) {
+    case CreatingCorporationCheckResult.Success:
+      return "Success";
+    case CreatingCorporationCheckResult.NoSf3OrDisabled:
+      return "You don't have SF3 or Corporation is disabled by an advanced option";
+    case CreatingCorporationCheckResult.CorporationExists:
+      return "Corporation exists";
+    case CreatingCorporationCheckResult.UseSeedMoneyOutsideBN3:
+      return "You cannot use seed money outside BitNode 3";
+    case CreatingCorporationCheckResult.DisabledBySoftCap:
+      return "You cannot create a corporation in this BitNode";
+    default: {
+      // Verify if switch statement is exhaustive
+      checkResult satisfies never;
+    }
+  }
+  return String(checkResult);
 }
 
 export function canCreateCorporation(selfFund: boolean, restart: boolean): CreatingCorporationCheckResult {

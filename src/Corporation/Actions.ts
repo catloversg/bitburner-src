@@ -10,7 +10,7 @@ import { OfficeSpace } from "./OfficeSpace";
 import { Material } from "./Material";
 import { Product } from "./Product";
 import { Warehouse } from "./Warehouse";
-import { FactionName, IndustryType } from "@enums";
+import { CreatingCorporationCheckResult, FactionName, IndustryType } from "@enums";
 import { ResearchMap } from "./ResearchMap";
 import { isRelevantMaterial } from "./ui/Helpers";
 import { CityName } from "@enums";
@@ -23,7 +23,6 @@ import {
   issueNewSharesFailureReason,
   costOfCreatingCorporation,
   canCreateCorporation,
-  CreatingCorporationCheckResult,
 } from "./helpers";
 import { PositiveInteger } from "../types";
 import { Factions } from "../Faction/Factions";

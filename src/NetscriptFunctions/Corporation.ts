@@ -56,7 +56,7 @@ import {
 } from "../Corporation/Actions";
 import { CorpUnlocks } from "../Corporation/data/CorporationUnlocks";
 import { CorpUpgrades } from "../Corporation/data/CorporationUpgrades";
-import { CorpUnlockName, CorpUpgradeName, CorpEmployeeJob, CityName } from "@enums";
+import { CorpUnlockName, CorpUpgradeName, CorpEmployeeJob, CityName, CreatingCorporationCheckResult } from "@enums";
 import { IndustriesData, IndustryResearchTrees } from "../Corporation/data/IndustryData";
 import * as corpConstants from "../Corporation/data/Constants";
 import { ResearchMap } from "../Corporation/ResearchMap";
@@ -65,10 +65,10 @@ import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
 import { MaterialInfo } from "../Corporation/MaterialInfo";
 import {
-  CreatingCorporationCheckResult,
   calculateOfficeSizeUpgradeCost,
   calculateUpgradeCost,
   canCreateCorporation,
+  convertCreatingCorporationCheckResultToMessage,
 } from "../Corporation/helpers";
 import { PositiveInteger } from "../types";
 import { getRecordKeys } from "../Types/Record";
@@ -597,10 +597,9 @@ export function NetscriptCorporation(): InternalAPI<NSCorporation> {
       const selfFund = !!_selfFund;
       const checkResult = canCreateCorporation(selfFund, false);
       if (checkResult !== CreatingCorporationCheckResult.Success) {
-        helpers.log(ctx, () => checkResult);
-        return false;
+        helpers.log(ctx, () => convertCreatingCorporationCheckResultToMessage(checkResult));
       }
-      return true;
+      return checkResult;
     },
     createCorporation:
       (ctx) =>

@@ -10,6 +10,7 @@
 |  --- | --- |
 |  [CityName](./bitburner.cityname.md) | Names of all cities |
 |  [CompanyName](./bitburner.companyname.md) | Names of all companies |
+|  [CreatingCorporationCheckResult](./bitburner.creatingcorporationcheckresult.md) |  |
 |  [CrimeType](./bitburner.crimetype.md) |  |
 |  [FactionWorkType](./bitburner.factionworktype.md) |  |
 |  [GymType](./bitburner.gymtype.md) |  |

@@ -9,7 +9,7 @@ Return whether the player can create a corporation. Does not require API access.
 **Signature:**
 
 ```typescript
-canCreateCorporation(selfFund: boolean): boolean;
+canCreateCorporation(selfFund: boolean): CreatingCorporationCheckResult;
 ```
 
 ## Parameters
@@ -20,9 +20,9 @@ canCreateCorporation(selfFund: boolean): boolean;
 
 **Returns:**
 
-boolean
+[CreatingCorporationCheckResult](./bitburner.creatingcorporationcheckresult.md)
 
-Whether the player can create a corporation
+Result of the check
 
 ## Remarks
 
