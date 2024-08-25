@@ -559,8 +559,7 @@ export function NetscriptSingularity(): InternalAPI<ISingularity> {
       helpers.checkSingularityAccess(ctx);
       const baseserver = Player.getCurrentServer();
       if (!(baseserver instanceof Server)) {
-        helpers.log(ctx, () => "Cannot backdoor this kind of server");
-        return Promise.resolve();
+        throw helpers.errorMessage(ctx, "Cannot backdoor this kind of server.");
       }
       const server = baseserver;
       const installTime = (calculateHackingTime(server, Player) / 4) * 1000;
@@ -968,7 +967,11 @@ export function NetscriptSingularity(): InternalAPI<ISingularity> {
         helpers.log(ctx, () => `You can't donate to '${facName}' because you are managing a gang for it`);
         return false;
       }
-      if (faction.name === FactionName.ChurchOfTheMachineGod || faction.name === FactionName.Bladeburners) {
+      if (
+        faction.name === FactionName.ChurchOfTheMachineGod ||
+        faction.name === FactionName.Bladeburners ||
+        faction.name === FactionName.ShadowsOfAnarchy
+      ) {
         helpers.log(ctx, () => `You can't donate to '${facName}' because they do not accept donations`);
         return false;
       }

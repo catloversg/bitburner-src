@@ -10,7 +10,7 @@ import type { WorkerScript } from "./WorkerScript";
 
 import React from "react";
 import { killWorkerScript } from "./killWorkerScript";
-import { GetAllServers, GetServer } from "../Server/AllServers";
+import { GetServer } from "../Server/AllServers";
 import { Player } from "@player";
 import { ScriptDeath } from "./ScriptDeath";
 import { formatExp, formatMoney, formatRam, formatThreads } from "../ui/formatNumber";
@@ -343,6 +343,7 @@ function netscriptDelay(ctx: NetscriptContext, time: number): Promise<void> {
 
 /** Adds to dynamic ram cost when calling new ns functions from a script */
 function updateDynamicRam(ctx: NetscriptContext, ramCost: number): void {
+  if (ramCost === 0) return;
   const ws = ctx.workerScript;
   const fnName = ctx.function;
   if (ws.dynamicLoadedFns[fnName]) return;
@@ -649,17 +650,9 @@ export function getRunningScriptsByArgs(
   return findRunningScripts(path, scriptArgs, server);
 }
 
-function getRunningScriptByPid(pid: number): RunningScript | null {
-  for (const server of GetAllServers()) {
-    const runningScript = findRunningScriptByPid(pid, server);
-    if (runningScript) return runningScript;
-  }
-  return null;
-}
-
 function getRunningScript(ctx: NetscriptContext, ident: ScriptIdentifier): RunningScript | null {
   if (typeof ident === "number") {
-    return getRunningScriptByPid(ident);
+    return findRunningScriptByPid(ident);
   } else {
     const scripts = getRunningScriptsByArgs(ctx, ident.scriptname, ident.hostname, ident.args);
     if (scripts === null) return null;
@@ -769,7 +762,7 @@ function validateBitNodeOptions(ctx: NetscriptContext, bitNodeOptions: unknown):
 
   result.sourceFileOverrides = new JSONMap(options.sourceFileOverrides);
   if (options.intelligenceOverride !== undefined) {
-    result.intelligenceOverride = number(ctx, "intelligenceOverride", options.intelligenceOverride);
+    result.intelligenceOverride = positiveInteger(ctx, "intelligenceOverride", options.intelligenceOverride);
   } else {
     result.intelligenceOverride = undefined;
   }

@@ -35,9 +35,9 @@ export class City {
   improvePopulationEstimateByCount(n: number): void {
     n = clampInteger(n, 0);
     const diff = Math.abs(this.popEst - this.pop);
-    // Chgnge would overshoot actual population -> make estimate accurate
+    // Change would overshoot actual population -> make estimate accurate
     if (diff <= n) this.popEst = this.pop;
-    // Otherwise make enstimate closer by n
+    // Otherwise make estimate closer by n
     else if (this.popEst < this.pop) this.popEst += n;
     else this.popEst -= n;
   }
@@ -46,10 +46,10 @@ export class City {
   improvePopulationEstimateByPercentage(p: number, skillMult = 1): void {
     p = clampNumber((p * skillMult) / 100);
     const diff = Math.abs(this.popEst - this.pop);
-    // Chgnge would overshoot actual population -> make estimate accurate
+    // Change would overshoot actual population -> make estimate accurate
     if (diff <= p * this.popEst) this.popEst = this.pop;
-    // Otherwise make enstimate closer by n
-    else if (this.popEst < this.pop) this.popEst = clampNumber(this.popEst * (1 + p));
+    // Otherwise make estimate closer by n
+    else if (this.popEst < this.pop) this.popEst = clampNumber(this.popEst * (1 + p), 1);
     else this.popEst = clampNumber(this.popEst * (1 - p));
   }
 
