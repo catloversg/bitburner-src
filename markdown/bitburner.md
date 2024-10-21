@@ -85,7 +85,7 @@
 |  [GoAnalysis](./bitburner.goanalysis.md) | Tools to analyze the IPvGO subnet. |
 |  [GoCheat](./bitburner.gocheat.md) | Illicit and dangerous IPvGO tools. Not for the faint of heart. Requires BitNode 14.2 to use. |
 |  [Grafting](./bitburner.grafting.md) | Grafting API |
-|  [GraftingTask](./bitburner.graftingtask.md) | Faction Work |
+|  [GraftingTask](./bitburner.graftingtask.md) | Grafting Work |
 |  [HackingFormulas](./bitburner.hackingformulas.md) | Hacking formulas |
 |  [HackingMultipliers](./bitburner.hackingmultipliers.md) | Hack related multipliers. |
 |  [Hacknet](./bitburner.hacknet.md) | Hacknet API |

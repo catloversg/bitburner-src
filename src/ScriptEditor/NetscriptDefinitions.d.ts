@@ -1708,9 +1708,13 @@ export interface FactionWorkTask {
 }
 
 /**
- * Faction Work
+ * Grafting Work
+ *
  * @remarks
- * An object representing the current grafting status
+ * An object representing the current grafting task
+ *
+ * The "completion" property is a promise that resolves when the task is complete.
+ *
  * @public
  */
 export interface GraftingTask {
