@@ -257,8 +257,9 @@ export function prestigeSourceFile(isFlume: boolean): void {
     // Easiest way to comply with type constraint, instead of revalidating the enum member's file path
     homeComp.messages.push(LiteratureName.CorporationManagementHandbook);
     delayedDialog(
-      "You received a copy of the Corporation Management Handbook on your home computer. " +
-        "Read it if you need help getting started with Corporations!",
+      "You received a copy of the Corporation Management Handbook on your home computer. It's a short introduction for " +
+        "managing Corporation.\n\nYou should check the in-game Corporation documentation in the Documentation tab " +
+        "(Documentation -> Advanced Mechanics -> Corporation). It's the most useful and up-to-date resource for managing Corporation.",
     );
   }
 
