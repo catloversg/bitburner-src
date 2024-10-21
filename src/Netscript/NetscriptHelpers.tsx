@@ -256,7 +256,16 @@ function argsToString(args: unknown[]): string {
       return (out += `< Set: ${[...nativeArg].join("; ")} >`);
     }
     if (typeof nativeArg === "object") {
-      return (out += JSON.stringify(nativeArg));
+      return (out += JSON.stringify(nativeArg, (_, value) => {
+        /**
+         * If the property is a promise, we will return a string that clearly states that it's a promise object, not a
+         * normal object. If we don't do that, all promises will be serialized into "{}".
+         */
+        if (value instanceof Promise) {
+          return value.toString();
+        }
+        return value;
+      }));
     }
 
     return (out += `${nativeArg}`);
