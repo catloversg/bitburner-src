@@ -216,7 +216,7 @@ const Engine: {
         try {
           Player.bladeburner.process();
         } catch (e) {
-          exceptionAlert("Exception caught in Bladeburner.process(): " + e);
+          exceptionAlert(e);
         }
       }
       Engine.Counters.mechanicProcess = 5;

@@ -1,7 +1,7 @@
 import React from "react";
 
-import { Page } from "../ui/Router";
-import { hash } from "../hash/hash";
+import type { Page } from "../ui/Router";
+import { commitHash } from "./helpers/commitHash";
 import { CONSTANTS } from "../Constants";
 
 enum GameEnv {
@@ -16,7 +16,7 @@ enum Platform {
 
 interface GameVersion {
   version: string;
-  hash: string;
+  commitHash: string;
 
   toDisplay: () => string;
 }
@@ -54,13 +54,13 @@ export interface IErrorData {
 
 export const newIssueUrl = `https://github.com/bitburner-official/bitburner-src/issues/new`;
 
-function getErrorMetadata(error: unknown, errorInfo?: React.ErrorInfo, page?: Page): IErrorMetadata {
+export function getErrorMetadata(error: unknown, errorInfo?: React.ErrorInfo, page?: Page): IErrorMetadata {
   const isElectron = navigator.userAgent.toLowerCase().includes(" electron/");
   const env = process.env.NODE_ENV === "development" ? GameEnv.Development : GameEnv.Production;
   const version: GameVersion = {
     version: CONSTANTS.VersionString,
-    hash: hash(),
-    toDisplay: () => `v${CONSTANTS.VersionString} (${hash()})`,
+    commitHash: commitHash(),
+    toDisplay: () => `v${CONSTANTS.VersionString} (${commitHash()})`,
   };
   const features: BrowserFeatures = {
     userAgent: navigator.userAgent,

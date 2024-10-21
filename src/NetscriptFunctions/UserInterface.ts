@@ -4,7 +4,7 @@ import { ThemeEvents } from "../Themes/ui/Theme";
 import { defaultTheme } from "../Themes/Themes";
 import { defaultStyles } from "../Themes/Styles";
 import { CONSTANTS } from "../Constants";
-import { hash } from "../hash/hash";
+import { commitHash } from "../utils/helpers/commitHash";
 import { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
 import { Terminal } from "../../src/Terminal";
 import { helpers } from "../Netscript/NetscriptHelpers";
@@ -116,7 +116,7 @@ export function NetscriptUserInterface(): InternalAPI<IUserInterface> {
 
     getGameInfo: () => () => {
       const version = CONSTANTS.VersionString;
-      const commit = hash();
+      const commit = commitHash();
       const platform = navigator.userAgent.toLowerCase().includes(" electron/") ? "Steam" : "Browser";
 
       const gameInfo = {

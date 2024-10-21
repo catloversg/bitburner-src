@@ -9,7 +9,7 @@ import { GetServer } from "./Server/AllServers";
 import { ImportPlayerData, ElectronGameData, saveObject } from "./SaveObject";
 import { exportScripts } from "./Terminal/commands/download";
 import { CONSTANTS } from "./Constants";
-import { hash } from "./hash/hash";
+import { commitHash } from "./utils/helpers/commitHash";
 import { resolveFilePath } from "./Paths/FilePath";
 import { hasScriptExtension } from "./Paths/ScriptFilePath";
 import { handleGetSaveDataError } from "./Netscript/ErrorMessages";
@@ -230,7 +230,7 @@ export function pushGameReady(): void {
     },
     game: {
       version: CONSTANTS.VersionString,
-      hash: hash(),
+      hash: commitHash(),
     },
   });
 }
