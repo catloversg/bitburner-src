@@ -5332,7 +5332,11 @@ interface BladeburnerFormulas {
    * @param skillPoints - Number of skill points to upgrade the skill. It must be a positive number.
    * @returns Number of times that you can upgrade the skill.
    */
-  skillMaxUpgradeCount(name: string, level: number, skillPoints: number): number;
+  skillMaxUpgradeCount(
+    name: BladeburnerSkillName | `${BladeburnerSkillName}`,
+    level: number,
+    skillPoints: number,
+  ): number;
 }
 
 /**
