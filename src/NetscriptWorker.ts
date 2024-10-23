@@ -36,6 +36,8 @@ import { CompleteRunOptions, getRunningScriptsByArgs } from "./Netscript/Netscri
 import { handleUnknownError } from "./Netscript/ErrorMessages";
 import { isLegacyScript, legacyScriptExtension, resolveScriptFilePath, ScriptFilePath } from "./Paths/ScriptFilePath";
 import { root } from "./Paths/Directory";
+import { Player } from "./Player";
+import { UIEventEmitter, UIEventType } from "./ui/UIEventEmitter";
 
 export const NetscriptPorts = new Map<PortNumber, Port>();
 
@@ -398,33 +400,47 @@ function createAutoexec(server: BaseServer): RunningScript | null {
  * into worker scripts so that they will start running
  */
 export function loadAllRunningScripts(): void {
-  const skipScriptLoad = window.location.href.toLowerCase().includes("?noscripts");
-  if (skipScriptLoad) {
-    Terminal.warn("Skipped loading player scripts during startup");
-    console.info("Skipping the load of any scripts during startup");
-  }
-  for (const server of GetAllServers()) {
-    // Reset each server's RAM usage to 0
-    server.ramUsed = 0;
-
-    const rsList = server.savedScripts;
-    server.savedScripts = undefined;
-    if (skipScriptLoad || !rsList) {
-      // Start game with no scripts
-      continue;
+  /**
+   * While loading the save data, the game engine calls this function to load all running scripts. With each script, we
+   * calculate the offline data, so we need the current "lastUpdate" and "playtimeSinceLastAug" from the save data.
+   * After the main UI is loaded and the logic of this function starts executing, those info in the Player object might be
+   * overwritten, so we need to save them here and use them later in "scriptCalculateOfflineProduction".
+   */
+  const playerLastUpdate = Player.lastUpdate;
+  const playerPlaytimeSinceLastAug = Player.playtimeSinceLastAug;
+  const unsubscribe = UIEventEmitter.subscribe((event) => {
+    if (event !== UIEventType.MainUILoaded) {
+      return;
     }
-    if (server.hostname === "home") {
-      // Push autoexec script onto the front of the list
-      const runningScript = createAutoexec(server);
-      if (runningScript) {
-        rsList.unshift(runningScript);
+    unsubscribe();
+    const skipScriptLoad = window.location.href.toLowerCase().includes("?noscripts");
+    if (skipScriptLoad) {
+      Terminal.warn("Skipped loading player scripts during startup");
+      console.info("Skipping the load of any scripts during startup");
+    }
+    for (const server of GetAllServers()) {
+      // Reset each server's RAM usage to 0
+      server.ramUsed = 0;
+
+      const rsList = server.savedScripts;
+      server.savedScripts = undefined;
+      if (skipScriptLoad || !rsList) {
+        // Start game with no scripts
+        continue;
+      }
+      if (server.hostname === "home") {
+        // Push autoexec script onto the front of the list
+        const runningScript = createAutoexec(server);
+        if (runningScript) {
+          rsList.unshift(runningScript);
+        }
+      }
+      for (const runningScript of rsList) {
+        startWorkerScript(runningScript, server);
+        scriptCalculateOfflineProduction(runningScript, playerLastUpdate, playerPlaytimeSinceLastAug);
       }
     }
-    for (const runningScript of rsList) {
-      startWorkerScript(runningScript, server);
-      scriptCalculateOfflineProduction(runningScript);
-    }
-  }
+  });
 }
 
 /** Run a script from inside another script (run(), exec(), spawn(), etc.) */

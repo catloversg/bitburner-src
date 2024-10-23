@@ -75,6 +75,7 @@ import { HistoryProvider } from "./React/Documentation";
 import { GoRoot } from "../Go/ui/GoRoot";
 import { Settings } from "../Settings/Settings";
 import { isBitNodeFinished } from "../BitNode/BitNodeUtils";
+import { UIEventEmitter, UIEventType } from "./UIEventEmitter";
 
 const htmlLocation = location;
 
@@ -381,8 +382,14 @@ export function GameRoot(): React.ReactElement {
       mainPage = <ImportSave saveData={pageWithContext.saveData} automatic={!!pageWithContext.automatic} />;
       withSidebar = false;
       bypassGame = true;
+      break;
     }
   }
+
+  // Emit an event to notify subscribers that the main UI is loaded.
+  useEffect(() => {
+    UIEventEmitter.emit(UIEventType.MainUILoaded);
+  }, []);
 
   return (
     <MathJaxContext version={3} src={__webpack_public_path__ + "mathjax/tex-chtml.js"}>

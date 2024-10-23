@@ -291,10 +291,10 @@ const Engine: {
       const offlineHackingIncome =
         (Player.moneySourceA.hacking / Player.playtimeSinceLastAug) * timeOffline * CONSTANTS.OfflineHackingIncome;
       Player.gainMoney(offlineHackingIncome, "hacking");
-      // Process offline progress
 
       loadAllRunningScripts(); // This also takes care of offline production for those scripts
 
+      // Process offline progress
       if (Player.currentWork !== null) {
         Player.focus = true;
         Player.processWork(numCyclesOffline);
@@ -447,7 +447,7 @@ const Engine: {
       Engine._lastUpdate = _thisUpdate - offset;
       Player.lastUpdate = _thisUpdate - offset;
       Engine.updateGame(diff);
-      if (GameCycleEvents.hasSubscibers()) {
+      if (GameCycleEvents.hasSubscribers()) {
         ReactDOM.unstable_batchedUpdates(() => {
           GameCycleEvents.emit();
         });
