@@ -1,27 +1,28 @@
 import type { PromisePair } from "../Types/Promises";
 import type { BlackOperation, Contract, GeneralAction, Operation } from "./Actions";
-import type { ActionIdentifier, Action, Attempt } from "./Types";
+import type { Action, ActionIdFor, ActionIdentifier, Attempt } from "./Types";
 import type { Person } from "../PersonObjects/Person";
 import type { Skills as PersonSkills } from "../PersonObjects/Skills";
 
 import {
   AugmentationName,
-  BladeActionType,
-  BladeContractName,
-  BladeGeneralActionName,
-  BladeMultName,
-  BladeOperationName,
-  BladeSkillName,
+  BladeburnerActionType,
+  BladeburnerContractName,
+  BladeburnerGeneralActionName,
+  BladeburnerMultName,
+  BladeburnerOperationName,
+  BladeburnerSkillName,
   CityName,
   FactionName,
 } from "@enums";
 import { getKeyList } from "../utils/helpers/getKeyList";
 import { constructorsForReviver, Generic_toJSON, Generic_fromJSON, IReviverValue } from "../utils/JSONReviver";
-import { formatNumberNoSuffix } from "../ui/formatNumber";
+import { formatHp, formatNumberNoSuffix, formatSleeveShock } from "../ui/formatNumber";
 import { Skills } from "./data/Skills";
 import { City } from "./City";
 import { Player } from "@player";
 import { Router } from "../ui/GameRoot";
+import { Page } from "../ui/Router";
 import { ConsoleHelpText } from "./data/Help";
 import { exceptionAlert } from "../utils/helpers/exceptionAlert";
 import { getRandomIntInclusive } from "../utils/helpers/getRandomIntInclusive";
@@ -36,7 +37,6 @@ import { Settings } from "../Settings/Settings";
 import { formatTime } from "../utils/helpers/formatTime";
 import { joinFaction } from "../Faction/FactionHelpers";
 import { isSleeveInfiltrateWork } from "../PersonObjects/Sleeve/Work/SleeveInfiltrateWork";
-import { isSleeveSupportWork } from "../PersonObjects/Sleeve/Work/SleeveSupportWork";
 import { WorkStats, newWorkStats } from "../Work/WorkStats";
 import { getEnumHelper } from "../utils/EnumHelper";
 import { PartialRecord, createEnumKeyedRecord, getRecordEntries } from "../Types/Record";
@@ -46,10 +46,18 @@ import { clampInteger, clampNumber } from "../utils/helpers/clampNumber";
 import { parseCommand } from "../Terminal/Parser";
 import { BlackOperations } from "./data/BlackOperations";
 import { GeneralActions } from "./data/GeneralActions";
+import { PlayerObject } from "../PersonObjects/Player/PlayerObject";
+import { Sleeve } from "../PersonObjects/Sleeve/Sleeve";
+import { autoCompleteTypeShorthand } from "./utils/terminalShorthands";
+import { resolveTeamCasualties, type OperationTeam } from "./Actions/TeamCasualties";
+import { shuffleArray } from "../Infiltration/ui/BribeGame";
+import { objectAssert } from "../utils/helpers/typeAssertion";
+import { throwIfReachable } from "../utils/helpers/throwIfReachable";
+import { loadActionIdentifier } from "./utils/loadActionIdentifier";
 
 export const BladeburnerPromise: PromisePair<number> = { promise: null, resolve: null };
 
-export class Bladeburner {
+export class Bladeburner implements OperationTeam {
   numHosp = 0;
   moneyLost = 0;
   rank = 0;
@@ -59,7 +67,9 @@ export class Bladeburner {
   totalSkillPoints = 0;
 
   teamSize = 0;
-  sleeveSize = 0;
+  get sleeveSize() {
+    return Player.sleevesSupportingBladeburner().length;
+  }
   teamLost = 0;
 
   storedCycles = 0;
@@ -75,14 +85,14 @@ export class Bladeburner {
   cities = createEnumKeyedRecord(CityName, (name) => new City(name));
   city = CityName.Sector12;
   // Todo: better types for all these Record<string, etc> types. Will need custom types or enums for the named string categories (e.g. skills).
-  skills: PartialRecord<BladeSkillName, number> = {};
-  skillMultipliers: PartialRecord<BladeMultName, number> = {};
+  skills: PartialRecord<BladeburnerSkillName, number> = {};
+  skillMultipliers: PartialRecord<BladeburnerMultName, number> = {};
   staminaBonus = 0;
   maxStamina = 1;
   stamina = 1;
   // Contracts and operations are stored on the Bladeburner object even though they are global so that they can utilize save/load of the main bladeburner object
-  contracts: Record<BladeContractName, Contract>;
-  operations: Record<BladeOperationName, Operation>;
+  contracts: Record<BladeburnerContractName, Contract>;
+  operations: Record<BladeburnerOperationName, Operation>;
   numBlackOpsComplete = 0;
   logging = {
     general: true,
@@ -98,6 +108,7 @@ export class Bladeburner {
   automateThreshLow = 0;
   consoleHistory: string[] = [];
   consoleLogs: string[] = ["Bladeburner Console", "Type 'help' to see console commands"];
+  getTeamCasualtiesRoll = getRandomIntInclusive;
 
   constructor() {
     this.contracts = createContracts();
@@ -115,7 +126,6 @@ export class Bladeburner {
   }
 
   calculateStaminaPenalty(): number {
-    if (this.stamina === this.maxStamina) return 1;
     return Math.min(1, this.stamina / (0.5 * this.maxStamina));
   }
 
@@ -124,7 +134,7 @@ export class Bladeburner {
   startAction(actionId: ActionIdentifier | null): Attempt<{ message: string }> {
     if (!actionId) {
       this.resetAction();
-      return { success: true, message: "Stopped current bladeburner action" };
+      return { success: true, message: "Stopped current Bladeburner action" };
     }
     if (!Player.hasAugmentation(AugmentationName.BladesSimulacrum, true)) Player.finishWork(true);
     const action = this.getActionObject(actionId);
@@ -140,18 +150,26 @@ export class Bladeburner {
   }
 
   /** Directly sets a skill level, with no validation */
-  setSkillLevel(skillName: BladeSkillName, value: number) {
-    this.skills[skillName] = clampInteger(value, 0);
+  setSkillLevel(skillName: BladeburnerSkillName, value: number) {
+    this.skills[skillName] = clampInteger(value, 0, Number.MAX_VALUE);
     this.updateSkillMultipliers();
   }
 
   /** Attempts to perform a skill upgrade, gives a message on both success and failure */
-  upgradeSkill(skillName: BladeSkillName, count = 1): Attempt<{ message: string }> {
+  upgradeSkill(skillName: BladeburnerSkillName, count = 1): Attempt<{ message: string }> {
+    const currentSkillLevel = this.skills[skillName] ?? 0;
     const availability = Skills[skillName].canUpgrade(this, count);
-    if (!availability.available) return { message: `Cannot upgrade ${skillName}: ${availability.error}` };
+    if (!availability.available) {
+      return { message: `Cannot upgrade ${skillName}: ${availability.error}` };
+    }
     this.skillPoints -= availability.cost;
-    this.setSkillLevel(skillName, (this.skills[skillName] ?? 0) + count);
-    return { success: true, message: `Upgraded skill ${skillName} by ${count} level${count > 1 ? "s" : ""}` };
+    this.setSkillLevel(skillName, currentSkillLevel + availability.actualCount);
+    return {
+      success: true,
+      message: `Upgraded skill ${skillName} by ${availability.actualCount} level${
+        availability.actualCount > 1 ? "s" : ""
+      }`,
+    };
   }
 
   executeConsoleCommands(commands: string): void {
@@ -240,7 +258,7 @@ export class Bladeburner {
   getSkillMultsDisplay(): string[] {
     const display: string[] = [];
     for (const [multName, mult] of getRecordEntries(this.skillMultipliers)) {
-      display.push(`${multName}: x${formatNumberNoSuffix(mult, 3)}`);
+      display.push(`${multName}: x${formatBigNumber(mult)}`);
     }
     return display;
   }
@@ -270,7 +288,7 @@ export class Bladeburner {
       }
       case 3: {
         const skillName = args[2];
-        if (!getEnumHelper("BladeSkillName").isMember(skillName)) {
+        if (!getEnumHelper("BladeburnerSkillName").isMember(skillName)) {
           this.postToConsole("Invalid skill name (Note that it is case-sensitive): " + skillName);
           return;
         }
@@ -419,61 +437,53 @@ export class Bladeburner {
         highLow = true;
       }
 
-      let actionId: ActionIdentifier;
-      switch (type) {
-        case "stamina":
-          // For stamina, the "name" variable is actually the stamina threshold
-          if (isNaN(parseFloat(name))) {
-            this.postToConsole("Invalid value specified for stamina threshold (must be numeric): " + name);
+      if (type === "stamina") {
+        // For stamina, the "name" variable is actually the stamina threshold
+        if (isNaN(parseFloat(name))) {
+          this.postToConsole("Invalid value specified for stamina threshold (must be numeric): " + name);
+        } else {
+          if (highLow) {
+            this.automateThreshHigh = Number(name);
           } else {
-            if (highLow) {
-              this.automateThreshHigh = Number(name);
-            } else {
-              this.automateThreshLow = Number(name);
-            }
-            this.log("Automate (" + (highLow ? "HIGH" : "LOW") + ") stamina threshold set to " + name);
+            this.automateThreshLow = Number(name);
           }
-          return;
-        case "general":
-        case "gen": {
-          if (!getEnumHelper("BladeGeneralActionName").isMember(name)) {
+          this.log("Automate (" + (highLow ? "HIGH" : "LOW") + ") stamina threshold set to " + name);
+        }
+        return;
+      }
+
+      const actionId = autoCompleteTypeShorthand(type, name);
+
+      if (actionId === null) {
+        switch (type) {
+          case "general":
+          case "gen": {
             this.postToConsole("Invalid General Action name specified: " + name);
             return;
           }
-          actionId = { type: BladeActionType.general, name };
-          break;
-        }
-        case "contract":
-        case "contracts": {
-          if (!getEnumHelper("BladeContractName").isMember(name)) {
+          case "contract":
+          case "contracts": {
             this.postToConsole("Invalid Contract name specified: " + name);
             return;
           }
-          actionId = { type: BladeActionType.contract, name };
-          break;
-        }
-        case "ops":
-        case "op":
-        case "operations":
-        case "operation":
-          if (!getEnumHelper("BladeOperationName").isMember(name)) {
+          case "ops":
+          case "op":
+          case "operations":
+          case "operation":
             this.postToConsole("Invalid Operation name specified: " + name);
             return;
-          }
-          actionId = { type: BladeActionType.operation, name };
-          break;
-        default:
-          this.postToConsole("Invalid use of automate command.");
-          return;
+          default:
+            this.postToConsole("Invalid use of automate command.");
+            return;
+        }
       }
+
       if (highLow) {
         this.automateActionHigh = actionId;
       } else {
         this.automateActionLow = actionId;
       }
       this.log("Automate (" + (highLow ? "HIGH" : "LOW") + ") action set to " + name);
-
-      return;
     }
   }
 
@@ -631,8 +641,8 @@ export class Bladeburner {
       }
     } else if (chance <= 0.7) {
       // Synthoid Riots (+chaos), 20%
-      sourceCity.chaos += 1;
-      sourceCity.chaos *= 1 + getRandomIntInclusive(5, 20) / 100;
+      sourceCity.changeChaosByCount(1);
+      sourceCity.changeChaosByPercentage(getRandomIntInclusive(5, 20));
       if (this.logging.events) {
         this.log("Tensions between Synthoids and humans lead to riots in " + sourceCityName + "! Chaos increased");
       }
@@ -671,7 +681,7 @@ export class Bladeburner {
 
     const unweightedGain = time * BladeburnerConstants.BaseStatGain * successMult * difficultyMult;
     const unweightedIntGain = time * BladeburnerConstants.BaseIntGain * successMult * difficultyMult;
-    const skillMult = this.getSkillMult(BladeMultName.expGain);
+    const skillMult = this.getSkillMult(BladeburnerMultName.ExpGain);
 
     return {
       hackExp: unweightedGain * action.weights.hacking * skillMult,
@@ -686,46 +696,40 @@ export class Bladeburner {
     };
   }
 
-  getDiplomacyEffectiveness(person: Person): number {
-    // Returns a decimal by which the city's chaos level should be multiplied (e.g. 0.98)
+  getDiplomacyPercentage(person: Person): number {
+    // Returns a percentage by which the city's chaos level should be modified (e.g. 2 for 2%)
     const CharismaLinearFactor = 1e3;
     const CharismaExponentialFactor = 0.045;
 
     const charismaEff =
       Math.pow(person.skills.charisma, CharismaExponentialFactor) + person.skills.charisma / CharismaLinearFactor;
-    return (100 - charismaEff) / 100;
-  }
-
-  getRecruitmentSuccessChance(person: Person): number {
-    return Math.pow(person.skills.charisma, 0.45) / (this.teamSize - this.sleeveSize + 1);
+    return charismaEff;
   }
 
   sleeveSupport(joining: boolean): void {
     if (joining) {
-      this.sleeveSize += 1;
       this.teamSize += 1;
     } else {
-      this.sleeveSize -= 1;
       this.teamSize -= 1;
     }
   }
 
-  getSkillMult(name: BladeMultName): number {
+  getSkillMult(name: BladeburnerMultName): number {
     return this.skillMultipliers[name] ?? 1;
   }
 
   getEffectiveSkillLevel(person: Person, name: keyof PersonSkills): number {
     switch (name) {
       case "strength":
-        return person.skills.strength * this.getSkillMult(BladeMultName.effStr);
+        return person.skills.strength * this.getSkillMult(BladeburnerMultName.EffStr);
       case "defense":
-        return person.skills.defense * this.getSkillMult(BladeMultName.effDef);
+        return person.skills.defense * this.getSkillMult(BladeburnerMultName.EffDef);
       case "dexterity":
-        return person.skills.dexterity * this.getSkillMult(BladeMultName.effDex);
+        return person.skills.dexterity * this.getSkillMult(BladeburnerMultName.EffDex);
       case "agility":
-        return person.skills.agility * this.getSkillMult(BladeMultName.effAgi);
+        return person.skills.agility * this.getSkillMult(BladeburnerMultName.EffAgi);
       case "charisma":
-        return person.skills.charisma * this.getSkillMult(BladeMultName.effCha);
+        return person.skills.charisma * this.getSkillMult(BladeburnerMultName.EffCha);
       default:
         return person.skills[name];
     }
@@ -737,56 +741,49 @@ export class Bladeburner {
       const level = this.getSkillLevel(skill.name);
       if (!level) continue;
       for (const [name, baseMult] of getRecordEntries(skill.mults)) {
-        const mult = baseMult * level;
-        this.skillMultipliers[name] = clampNumber(this.getSkillMult(name) + mult / 100, 0);
+        const mult = 1 + (baseMult * level) / 100;
+        this.skillMultipliers[name] = clampNumber(this.getSkillMult(name) * mult, 0);
       }
     }
   }
 
+  killRandomSupportingSleeves(n: number) {
+    const sup = [...Player.sleevesSupportingBladeburner()]; // Explicit shallow copy
+    shuffleArray(sup);
+    sup.slice(0, Math.min(sup.length, n)).forEach((sleeve) => sleeve.kill());
+  }
+
   completeOperation(success: boolean): void {
-    if (this.action?.type !== BladeActionType.operation) {
+    if (this.action?.type !== BladeburnerActionType.Operation) {
       throw new Error("completeOperation() called even though current action is not an Operation");
     }
     const action = this.getActionObject(this.action);
-
-    // Calculate team losses
-    const teamCount = action.teamCount;
-    if (teamCount >= 1) {
-      const maxLosses = success ? Math.ceil(teamCount / 2) : Math.floor(teamCount);
-      const losses = getRandomIntInclusive(0, maxLosses);
-      this.teamSize -= losses;
-      if (this.teamSize < this.sleeveSize) {
-        const sup = Player.sleeves.filter((x) => isSleeveSupportWork(x.currentWork));
-        for (let i = 0; i > this.teamSize - this.sleeveSize; i--) {
-          const r = Math.floor(Math.random() * sup.length);
-          sup[r].takeDamage(sup[r].hp.max);
-          sup.splice(r, 1);
-        }
-        this.teamSize += this.sleeveSize;
-      }
-      this.teamLost += losses;
-      if (this.logging.ops && losses > 0) {
-        this.log("Lost " + formatNumberNoSuffix(losses, 0) + " team members during this " + action.name);
-      }
+    const deaths = resolveTeamCasualties(action, this, success);
+    if (this.logging.ops && deaths > 0) {
+      this.log("Lost " + formatNumberNoSuffix(deaths, 0) + " team members during this " + action.name);
     }
 
     const city = this.getCurrentCity();
     switch (action.name) {
-      case BladeOperationName.investigation:
+      case BladeburnerOperationName.Investigation:
         if (success) {
-          city.improvePopulationEstimateByPercentage(0.4 * this.getSkillMult(BladeMultName.successChanceEstimate));
+          city.improvePopulationEstimateByPercentage(
+            0.4 * this.getSkillMult(BladeburnerMultName.SuccessChanceEstimate),
+          );
         } else {
           this.triggerPotentialMigration(this.city, 0.1);
         }
         break;
-      case BladeOperationName.undercover:
+      case BladeburnerOperationName.Undercover:
         if (success) {
-          city.improvePopulationEstimateByPercentage(0.8 * this.getSkillMult(BladeMultName.successChanceEstimate));
+          city.improvePopulationEstimateByPercentage(
+            0.8 * this.getSkillMult(BladeburnerMultName.SuccessChanceEstimate),
+          );
         } else {
           this.triggerPotentialMigration(this.city, 0.15);
         }
         break;
-      case BladeOperationName.sting:
+      case BladeburnerOperationName.Sting:
         if (success) {
           city.changePopulationByPercentage(-0.1, {
             changeEstEqually: true,
@@ -795,7 +792,7 @@ export class Bladeburner {
         }
         city.changeChaosByCount(0.1);
         break;
-      case BladeOperationName.raid:
+      case BladeburnerOperationName.Raid:
         if (success) {
           city.changePopulationByPercentage(-1, {
             changeEstEqually: true,
@@ -811,7 +808,7 @@ export class Bladeburner {
         }
         city.changeChaosByPercentage(getRandomIntInclusive(1, 5));
         break;
-      case BladeOperationName.stealthRetirement:
+      case BladeburnerOperationName.StealthRetirement:
         if (success) {
           city.changePopulationByPercentage(-0.5, {
             changeEstEqually: true,
@@ -820,14 +817,14 @@ export class Bladeburner {
         }
         city.changeChaosByPercentage(getRandomIntInclusive(-3, -1));
         break;
-      case BladeOperationName.assassination:
+      case BladeburnerOperationName.Assassination:
         if (success) {
           city.changePopulationByCount(-1, { estChange: -1, estOffset: 0 });
         }
         city.changeChaosByPercentage(getRandomIntInclusive(-5, 5));
         break;
       default:
-        throw new Error("Invalid Action name in completeOperation: " + this.action.name);
+        throwIfReachable(action.name);
     }
   }
 
@@ -835,17 +832,17 @@ export class Bladeburner {
     const city = this.getCurrentCity();
     if (success) {
       switch (action.name) {
-        case BladeContractName.tracking:
+        case BladeburnerContractName.Tracking:
           // Increase estimate accuracy by a relatively small amount
           city.improvePopulationEstimateByCount(
-            getRandomIntInclusive(100, 1e3) * this.getSkillMult(BladeMultName.successChanceEstimate),
+            getRandomIntInclusive(100, 1e3) * this.getSkillMult(BladeburnerMultName.SuccessChanceEstimate),
           );
           break;
-        case BladeContractName.bountyHunter:
+        case BladeburnerContractName.BountyHunter:
           city.changePopulationByCount(-1, { estChange: -1, estOffset: 0 });
           city.changeChaosByCount(0.02);
           break;
-        case BladeContractName.retirement:
+        case BladeburnerContractName.Retirement:
           city.changePopulationByCount(-1, { estChange: -1, estOffset: 0 });
           city.changeChaosByCount(0.04);
           break;
@@ -854,13 +851,29 @@ export class Bladeburner {
   }
 
   completeAction(person: Person, actionIdent: ActionIdentifier, isPlayer = true): WorkStats {
+    const currentHp = person.hp.current;
+    const getExtraLogAfterTakingDamage = (damage: number) => {
+      let extraLog = "";
+      if (currentHp <= damage) {
+        if (person instanceof PlayerObject) {
+          extraLog += ` ${person.whoAmI()} was hospitalized. Current HP is ${formatHp(person.hp.current)}.`;
+        } else if (person instanceof Sleeve) {
+          extraLog += ` ${person.whoAmI()} was shocked. Current shock is ${formatSleeveShock(
+            person.shock,
+          )}. Current HP is ${formatHp(person.hp.current)}.`;
+        }
+      } else {
+        extraLog += ` HP reduced from ${formatHp(currentHp)} to ${formatHp(person.hp.current)}.`;
+      }
+      return extraLog;
+    };
     let retValue = newWorkStats();
     const action = this.getActionObject(actionIdent);
     switch (action.type) {
-      case BladeActionType.contract:
-      case BladeActionType.operation: {
+      case BladeburnerActionType.Contract:
+      case BladeburnerActionType.Operation: {
         try {
-          const isOperation = action.type === BladeActionType.operation;
+          const isOperation = action.type === BladeburnerActionType.Operation;
           const difficulty = action.getDifficulty();
           const difficultyMultiplier =
             Math.pow(difficulty, BladeburnerConstants.DiffMultExponentialFactor) +
@@ -885,7 +898,9 @@ export class Bladeburner {
             let moneyGain = 0;
             if (!isOperation) {
               moneyGain =
-                BladeburnerConstants.ContractBaseMoneyGain * rewardMultiplier * this.getSkillMult(BladeMultName.money);
+                BladeburnerConstants.ContractBaseMoneyGain *
+                rewardMultiplier *
+                this.getSkillMult(BladeburnerMultName.Money);
               retValue.money = moneyGain;
             }
 
@@ -899,16 +914,24 @@ export class Bladeburner {
               this.changeRank(person, gain);
               if (isOperation && this.logging.ops) {
                 this.log(
-                  `${person.whoAmI()}: ${action.name} successfully completed! Gained ${formatBigNumber(gain)} rank`,
+                  `${person.whoAmI()}: ${action.name} successfully completed! Gained ${formatBigNumber(gain)} rank.`,
                 );
               } else if (!isOperation && this.logging.contracts) {
                 this.log(
                   `${person.whoAmI()}: ${action.name} contract successfully completed! Gained ` +
-                    `${formatBigNumber(gain)} rank and ${formatMoney(moneyGain)}`,
+                    `${formatBigNumber(gain)} rank and ${formatMoney(moneyGain)}.`,
                 );
               }
             }
             isOperation ? this.completeOperation(true) : this.completeContract(true, action);
+            /**
+             * If the player successfully completes a contract/operation involving killing, we deduct their karma by 1.
+             * The amount of reduction must be a small, flat value because the action time of contract/operation can be
+             * reduced to 1 second.
+             */
+            if (action.isKill) {
+              Player.karma -= 1;
+            }
           } else {
             retValue = this.getActionStats(action, person, false);
             ++action.failures;
@@ -930,15 +953,15 @@ export class Bladeburner {
             }
             let logLossText = "";
             if (loss > 0) {
-              logLossText += "Lost " + formatNumberNoSuffix(loss, 3) + " rank. ";
+              logLossText += ` Lost ${formatNumberNoSuffix(loss, 3)} rank.`;
             }
             if (damage > 0) {
-              logLossText += "Took " + formatNumberNoSuffix(damage, 0) + " damage.";
+              logLossText += ` Took ${formatNumberNoSuffix(damage, 0)} damage.${getExtraLogAfterTakingDamage(damage)}`;
             }
             if (isOperation && this.logging.ops) {
-              this.log(`${person.whoAmI()}: ` + action.name + " failed! " + logLossText);
+              this.log(`${person.whoAmI()}: ${action.name} failed!${logLossText}`);
             } else if (!isOperation && this.logging.contracts) {
-              this.log(`${person.whoAmI()}: ` + action.name + " contract failed! " + logLossText);
+              this.log(`${person.whoAmI()}: ${action.name} contract failed!${logLossText}`);
             }
             isOperation ? this.completeOperation(false) : this.completeContract(false, action);
           }
@@ -950,7 +973,7 @@ export class Bladeburner {
         }
         break;
       }
-      case BladeActionType.blackOp: {
+      case BladeburnerActionType.BlackOp: {
         const difficulty = action.getDifficulty();
         const difficultyMultiplier =
           Math.pow(difficulty, BladeburnerConstants.DiffMultExponentialFactor) +
@@ -962,9 +985,7 @@ export class Bladeburner {
           this.stamina = 0;
         }
 
-        // Team loss variables
-        const teamCount = action.teamCount;
-        let teamLossMax;
+        let deaths;
 
         if (action.attempt(this, person)) {
           retValue = this.getActionStats(action, person, true);
@@ -974,10 +995,22 @@ export class Bladeburner {
             rankGain = addOffset(action.rankGain * currentNodeMults.BladeburnerRank, 10);
             this.changeRank(person, rankGain);
           }
-          teamLossMax = Math.ceil(teamCount / 2);
+
+          deaths = resolveTeamCasualties(action, this, true);
 
           if (this.logging.blackops) {
-            this.log(`${person.whoAmI()}: ${action.name} successful! Gained ${formatNumberNoSuffix(rankGain, 1)} rank`);
+            this.log(
+              `${person.whoAmI()}: ${action.name} successful! Gained ${formatNumberNoSuffix(rankGain, 1)} rank.`,
+            );
+          }
+          /**
+           * If the player successfully completes a BlackOp involving killing, we deduct their karma by 15. The amount
+           * of reduction is higher than contract/operation because the number of BlackOps is small. It won't affect the
+           * balance. -15 karma is the same amount of karma for "heist" crime, which is the crime giving the highest
+           * "negative karma".
+           */
+          if (action.isKill) {
+            Player.karma -= 15;
           }
         } else {
           retValue = this.getActionStats(action, person, false);
@@ -996,51 +1029,37 @@ export class Bladeburner {
               this.moneyLost += cost;
             }
           }
-          teamLossMax = Math.floor(teamCount);
+
+          deaths = resolveTeamCasualties(action, this, false);
 
           if (this.logging.blackops) {
             this.log(
               `${person.whoAmI()}: ${action.name} failed! Lost ${formatNumberNoSuffix(
                 rankLoss,
                 1,
-              )} rank and took ${formatNumberNoSuffix(damage, 0)} damage`,
+              )} rank. Took ${formatNumberNoSuffix(damage, 0)} damage.${getExtraLogAfterTakingDamage(damage)}`,
             );
           }
         }
 
         this.resetAction(); // Stop regardless of success or fail
 
-        // Calculate team losses
-        if (teamCount >= 1) {
-          const losses = getRandomIntInclusive(1, teamLossMax);
-          this.teamSize -= losses;
-          if (this.teamSize < this.sleeveSize) {
-            const sup = Player.sleeves.filter((x) => isSleeveSupportWork(x.currentWork));
-            for (let i = 0; i > this.teamSize - this.sleeveSize; i--) {
-              const r = Math.floor(Math.random() * sup.length);
-              sup[r].takeDamage(sup[r].hp.max);
-              sup.splice(r, 1);
-            }
-            this.teamSize += this.sleeveSize;
-          }
-          this.teamLost += losses;
-          if (this.logging.blackops) {
-            this.log(
-              `${person.whoAmI()}:  You lost ${formatNumberNoSuffix(losses, 0)} team members during ${action.name}`,
-            );
-          }
+        if (this.logging.blackops && deaths > 0) {
+          this.log(
+            `${person.whoAmI()}:  You lost ${formatNumberNoSuffix(deaths, 0)} team members during ${action.name}.`,
+          );
         }
         break;
       }
-      case BladeActionType.general:
+      case BladeburnerActionType.General:
         switch (action.name) {
-          case BladeGeneralActionName.training: {
+          case BladeburnerGeneralActionName.Training: {
             this.stamina -= 0.5 * BladeburnerConstants.BaseStaminaLoss;
             const strExpGain = 30 * person.mults.strength_exp,
               defExpGain = 30 * person.mults.defense_exp,
               dexExpGain = 30 * person.mults.dexterity_exp,
               agiExpGain = 30 * person.mults.agility_exp,
-              staminaGain = 0.04 * this.getSkillMult(BladeMultName.stamina);
+              staminaGain = 0.04 * this.getSkillMult(BladeburnerMultName.Stamina);
             retValue.strExp = strExpGain;
             retValue.defExp = defExpGain;
             retValue.dexExp = dexExpGain;
@@ -1059,12 +1078,12 @@ export class Bladeburner {
                   formatExp(agiExpGain) +
                   " agi exp, " +
                   formatBigNumber(staminaGain) +
-                  " max stamina",
+                  " max stamina.",
               );
             }
             break;
           }
-          case BladeGeneralActionName.fieldAnalysis: {
+          case BladeburnerGeneralActionName.FieldAnalysis: {
             // Does not use stamina. Effectiveness depends on hacking, int, and cha
             let eff =
               0.04 * Math.pow(person.skills.hacking, 0.3) +
@@ -1082,19 +1101,19 @@ export class Bladeburner {
             retValue.intExp = BladeburnerConstants.BaseIntGain;
             this.changeRank(person, rankGain);
             this.getCurrentCity().improvePopulationEstimateByPercentage(
-              eff * this.getSkillMult(BladeMultName.successChanceEstimate),
+              eff * this.getSkillMult(BladeburnerMultName.SuccessChanceEstimate),
             );
             if (this.logging.general) {
               this.log(
                 `${person.whoAmI()}: ` +
                   `Field analysis completed. Gained ${formatBigNumber(rankGain)} rank, ` +
                   `${formatExp(hackingExpGain)} hacking exp, and ` +
-                  `${formatExp(charismaExpGain)} charisma exp`,
+                  `${formatExp(charismaExpGain)} charisma exp.`,
               );
             }
             break;
           }
-          case BladeGeneralActionName.recruitment: {
+          case BladeburnerGeneralActionName.Recruitment: {
             const actionTime = action.getActionTime(this, person) * 1000;
             if (action.attempt(this, person)) {
               const expGain = 2 * BladeburnerConstants.BaseStatGain * actionTime;
@@ -1105,7 +1124,7 @@ export class Bladeburner {
                   `${person.whoAmI()}: ` +
                     "Successfully recruited a team member! Gained " +
                     formatExp(expGain) +
-                    " charisma exp",
+                    " charisma exp.",
                 );
               }
             } else {
@@ -1116,42 +1135,47 @@ export class Bladeburner {
                   `${person.whoAmI()}: ` +
                     "Failed to recruit a team member. Gained " +
                     formatExp(expGain) +
-                    " charisma exp",
+                    " charisma exp.",
                 );
               }
             }
             break;
           }
-          case BladeGeneralActionName.diplomacy: {
-            const eff = this.getDiplomacyEffectiveness(person);
-            this.getCurrentCity().chaos *= eff;
-            if (this.getCurrentCity().chaos < 0) {
-              this.getCurrentCity().chaos = 0;
-            }
+          case BladeburnerGeneralActionName.Diplomacy: {
+            const diplomacyPct = this.getDiplomacyPercentage(person);
+            this.getCurrentCity().changeChaosByPercentage(-diplomacyPct);
             if (this.logging.general) {
               this.log(
                 `${person.whoAmI()}: Diplomacy completed. Chaos levels in the current city fell by ${formatPercent(
-                  1 - eff,
-                )}`,
+                  diplomacyPct / 100,
+                )}.`,
               );
             }
             break;
           }
-          case BladeGeneralActionName.hyperbolicRegen: {
+          case BladeburnerGeneralActionName.HyperbolicRegen: {
             person.regenerateHp(BladeburnerConstants.HrcHpGain);
 
+            const currentStamina = this.stamina;
             const staminaGain = this.maxStamina * (BladeburnerConstants.HrcStaminaGain / 100);
             this.stamina = Math.min(this.maxStamina, this.stamina + staminaGain);
             if (this.logging.general) {
-              this.log(
-                `${person.whoAmI()}: Rested in Hyperbolic Regeneration Chamber. Restored ${
-                  BladeburnerConstants.HrcHpGain
-                } HP and gained ${formatStamina(staminaGain)} stamina`,
-              );
+              let extraLog = "";
+              if (Player.hp.current > currentHp) {
+                extraLog += ` Restored ${formatHp(BladeburnerConstants.HrcHpGain)} HP. Current HP is ${formatHp(
+                  Player.hp.current,
+                )}.`;
+              }
+              if (this.stamina > currentStamina) {
+                extraLog += ` Restored ${formatStamina(staminaGain)} stamina. Current stamina is ${formatStamina(
+                  this.stamina,
+                )}.`;
+              }
+              this.log(`${person.whoAmI()}: Rested in Hyperbolic Regeneration Chamber.${extraLog}`);
             }
             break;
           }
-          case BladeGeneralActionName.inciteViolence: {
+          case BladeburnerGeneralActionName.InciteViolence: {
             for (const contract of Object.values(this.contracts)) {
               contract.count += (60 * 3 * contract.growthFunction()) / BladeburnerConstants.ActionCountGrowthPeriod;
             }
@@ -1163,8 +1187,8 @@ export class Bladeburner {
             }
             for (const cityName of Object.values(CityName)) {
               const city = this.cities[cityName];
-              city.chaos += 10;
-              city.chaos += city.chaos / (Math.log(city.chaos) / Math.log(10));
+              city.changeChaosByCount(10);
+              city.changeChaosByCount(city.chaos / Math.log10(city.chaos));
             }
             break;
           }
@@ -1185,10 +1209,10 @@ export class Bladeburner {
   infiltrateSynthoidCommunities(): void {
     const infilSleeves = Player.sleeves.filter((s) => isSleeveInfiltrateWork(s.currentWork)).length;
     const amt = Math.pow(infilSleeves, -0.5) / 2;
-    for (const contract of Object.values(BladeContractName)) {
+    for (const contract of Object.values(BladeburnerContractName)) {
       this.contracts[contract].count += amt;
     }
-    for (const operation of Object.values(BladeOperationName)) {
+    for (const operation of Object.values(BladeburnerOperationName)) {
       this.operations[operation].count += amt;
     }
     if (this.logging.general) {
@@ -1243,7 +1267,7 @@ export class Bladeburner {
       const retValue = this.completeAction(Player, action.id);
       Player.gainMoney(retValue.money, "bladeburner");
       Player.gainStats(retValue);
-      if (action.type != BladeActionType.blackOp) {
+      if (action.type != BladeburnerActionType.BlackOp) {
         this.startAction(action.id); // Attempt to repeat action
       }
     }
@@ -1253,31 +1277,37 @@ export class Bladeburner {
     const effAgility = this.getEffectiveSkillLevel(Player, "agility");
     const maxStaminaBonus = this.maxStamina / BladeburnerConstants.MaxStaminaToGainFactor;
     const gain = (BladeburnerConstants.StaminaGainPerSecond + maxStaminaBonus) * Math.pow(effAgility, 0.17);
-    return clampNumber(gain * (this.getSkillMult(BladeMultName.stamina) * Player.mults.bladeburner_stamina_gain), 0);
+    return clampNumber(
+      gain * (this.getSkillMult(BladeburnerMultName.Stamina) * Player.mults.bladeburner_stamina_gain),
+      0,
+    );
   }
 
   calculateMaxStamina(): void {
     const baseStamina = Math.pow(this.getEffectiveSkillLevel(Player, "agility"), 0.8);
+    // Min value of maxStamina is an arbitrarily small positive value. It must not be 0 to avoid NaN stamina penalty.
     const maxStamina = clampNumber(
       (baseStamina + this.staminaBonus) *
-        this.getSkillMult(BladeMultName.stamina) *
+        this.getSkillMult(BladeburnerMultName.Stamina) *
         Player.mults.bladeburner_max_stamina,
-      0,
+      1e-9,
     );
-    if (this.maxStamina === maxStamina) return;
+    if (this.maxStamina === maxStamina) {
+      return;
+    }
     // If max stamina changed, adjust stamina accordingly
     const oldMax = this.maxStamina;
     this.maxStamina = maxStamina;
     this.stamina = clampNumber((this.maxStamina * this.stamina) / oldMax, 0, maxStamina);
   }
 
-  getSkillLevel(skillName: BladeSkillName): number {
+  getSkillLevel(skillName: BladeburnerSkillName): number {
     return this.skills[skillName] ?? 0;
   }
 
   process(): void {
     // Edge race condition when the engine checks the processing counters and attempts to route before the router is initialized.
-    if (!Router.isInitialized) return;
+    if (Router.page() === Page.LoadingScreen) return;
 
     // If the Player starts doing some other actions, set action to idle and alert
     if (!Player.hasAugmentation(AugmentationName.BladesSimulacrum, true) && Player.currentWork) {
@@ -1357,20 +1387,20 @@ export class Bladeburner {
   }
 
   /** Return the action based on an ActionIdentifier, discriminating types when possible */
-  getActionObject(actionId: ActionIdentifier & { type: BladeActionType.blackOp }): BlackOperation;
-  getActionObject(actionId: ActionIdentifier & { type: BladeActionType.operation }): Operation;
-  getActionObject(actionId: ActionIdentifier & { type: BladeActionType.contract }): Contract;
-  getActionObject(actionId: ActionIdentifier & { type: BladeActionType.general }): GeneralAction;
+  getActionObject(actionId: ActionIdFor<BlackOperation>): BlackOperation;
+  getActionObject(actionId: ActionIdFor<Operation>): Operation;
+  getActionObject(actionId: ActionIdFor<Contract>): Contract;
+  getActionObject(actionId: ActionIdFor<GeneralAction>): GeneralAction;
   getActionObject(actionId: ActionIdentifier): Action;
   getActionObject(actionId: ActionIdentifier): Action {
     switch (actionId.type) {
-      case BladeActionType.contract:
+      case BladeburnerActionType.Contract:
         return this.contracts[actionId.name];
-      case BladeActionType.operation:
+      case BladeburnerActionType.Operation:
         return this.operations[actionId.name];
-      case BladeActionType.blackOp:
+      case BladeburnerActionType.BlackOp:
         return BlackOperations[actionId.name];
-      case BladeActionType.general:
+      case BladeburnerActionType.General:
         return GeneralActions[actionId.name];
     }
   }
@@ -1378,36 +1408,8 @@ export class Bladeburner {
   /** Fuzzy matching for action identifiers. Should be removed in 3.0 */
   getActionFromTypeAndName(type: string, name: string): Action | null {
     if (!type || !name) return null;
-    const convertedType = type.toLowerCase().trim();
-    switch (convertedType) {
-      case "contract":
-      case "contracts":
-      case "contr":
-        if (!getEnumHelper("BladeContractName").isMember(name)) return null;
-        return this.contracts[name];
-      case "operation":
-      case "operations":
-      case "op":
-      case "ops":
-        if (!getEnumHelper("BladeOperationName").isMember(name)) return null;
-        return this.operations[name];
-      case "blackoperation":
-      case "black operation":
-      case "black operations":
-      case "black op":
-      case "black ops":
-      case "blackop":
-      case "blackops":
-        if (!getEnumHelper("BladeBlackOpName").isMember(name)) return null;
-        return BlackOperations[name];
-      case "general":
-      case "general action":
-      case "gen": {
-        if (!getEnumHelper("BladeGeneralActionName").isMember(name)) return null;
-        return GeneralActions[name];
-      }
-    }
-    return null;
+    const id = autoCompleteTypeShorthand(type, name);
+    return id ? this.getActionObject(id) : null;
   }
 
   static keysToSave = getKeyList(Bladeburner, { removedKeys: ["skillMultipliers"] });
@@ -1421,16 +1423,46 @@ export class Bladeburner {
 
   /** Initializes a Bladeburner object from a JSON save state. */
   static fromJSON(value: IReviverValue): Bladeburner {
+    objectAssert(value.data);
     // operations and contracts are not loaded directly from the save, we load them in using a different method
-    const contractsData = value.data?.contracts;
-    const operationsData = value.data?.operations;
+    const contractsData = value.data.contracts;
+    const operationsData = value.data.operations;
     const bladeburner = Generic_fromJSON(Bladeburner, value.data, Bladeburner.keysToLoad);
+
+    /**
+     * Handle migration from pre-v2.6.1 versions:
+     * - pre-v2.6.1:
+     *   - action is an instance of the ActionIdentifier class. It cannot be null.
+     *   - action.type is a number.
+     * - 2.6.1:
+     *   - action is a nullable plain object. ActionIdentifier is a "type".
+     *   - action.type is a string.
+     */
+    if (bladeburner.action && typeof bladeburner.action.type === "number") {
+      bladeburner.action = loadActionIdentifier(bladeburner.action);
+      if (bladeburner.automateActionHigh) {
+        bladeburner.automateActionHigh = loadActionIdentifier(bladeburner.automateActionHigh);
+      }
+      if (bladeburner.automateActionLow) {
+        bladeburner.automateActionLow = loadActionIdentifier(bladeburner.automateActionLow);
+      }
+    }
     // Loading this way allows better typesafety and also allows faithfully reconstructing contracts/operations
     // even from save data that is missing a lot of static info about the objects.
     loadContractsData(contractsData, bladeburner.contracts);
     loadOperationsData(operationsData, bladeburner.operations);
     // Regenerate skill multiplier data, which is not included in savedata
     bladeburner.updateSkillMultipliers();
+    // If stamina or maxStamina is invalid, we set both of them to 1 and recalculate them.
+    if (
+      !Number.isFinite(bladeburner.stamina) ||
+      !Number.isFinite(bladeburner.maxStamina) ||
+      bladeburner.maxStamina === 0
+    ) {
+      bladeburner.stamina = 1;
+      bladeburner.maxStamina = 1;
+      bladeburner.calculateMaxStamina();
+    }
     return bladeburner;
   }
 }

@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { EventEmitter } from "../../utils/EventEmitter";
 import { RunningScript } from "../../Script/RunningScript";
 import { killWorkerScriptByPid } from "../../Netscript/killWorkerScript";
+
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+
 import Draggable, { DraggableEvent } from "react-draggable";
 import { ResizableBox, ResizeCallbackData } from "react-resizable";
 import IconButton from "@mui/material/IconButton";
-import makeStyles from "@mui/styles/makeStyles";
-import createStyles from "@mui/styles/createStyles";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -25,7 +25,8 @@ import { Settings } from "../../Settings/Settings";
 import { ANSIITypography } from "./ANSIITypography";
 import { useRerender } from "./hooks";
 import { dialogBoxCreate } from "./DialogBox";
-
+import { makeStyles } from "tss-react/mui";
+import { logBoxBaseZIndex } from "./Constants";
 let layerCounter = 0;
 
 export const LogBoxEvents = new EventEmitter<[RunningScript]>();
@@ -143,33 +144,29 @@ interface LogWindowProps {
   hidden: boolean;
 }
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    logs: {
-      overflowY: "scroll",
-      overflowX: "hidden",
-      scrollbarWidth: "auto",
-      flexDirection: "column-reverse",
-      whiteSpace: "pre-wrap",
-      wordWrap: "break-word",
-    },
-    titleButton: {
-      borderWidth: "0 0 0 1px",
-      borderColor: Settings.theme.welllight,
-      borderStyle: "solid",
-      borderRadius: "0",
-      padding: "0",
-      height: "100%",
-    },
-  }),
-);
-
-export const logBoxBaseZIndex = 1500;
+const useStyles = makeStyles()({
+  logs: {
+    overflowY: "scroll",
+    overflowX: "hidden",
+    scrollbarWidth: "auto",
+    flexDirection: "column-reverse",
+    whiteSpace: "pre-wrap",
+    wordWrap: "break-word",
+  },
+  titleButton: {
+    borderWidth: "0 0 0 1px",
+    borderColor: Settings.theme.welllight,
+    borderStyle: "solid",
+    borderRadius: "0",
+    padding: "0",
+    height: "100%",
+  },
+});
 
 function LogWindow({ hidden, script, onClose }: LogWindowProps): React.ReactElement {
   const draggableRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<Draggable>(null);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const container = useRef<HTMLDivElement>(null);
   const textArea = useRef<HTMLDivElement>(null);
   const rerender = useRerender(Settings.TailRenderInterval);
@@ -215,7 +212,7 @@ function LogWindow({ hidden, script, onClose }: LogWindowProps): React.ReactElem
   function run(): void {
     const server = GetServer(script.server);
     if (server === null) return;
-    const s = findRunningScriptByPid(script.pid, server);
+    const s = findRunningScriptByPid(script.pid);
     if (s === null) {
       const baseScript = server.scripts.get(script.filename);
       if (!baseScript) {
@@ -301,7 +298,16 @@ function LogWindow({ hidden, script, onClose }: LogWindowProps): React.ReactElem
     return !(bounds.right < 0 || bounds.bottom < 0 || bounds.left > innerWidth || bounds.top > outerWidth);
   };
 
-  const onDrag = (e: DraggableEvent): void | false => {
+  /**
+   * The returned type of onDrag is a bit weird here. The Draggable component expects an onDrag that returns "void | false".
+   * In that component's internal code, it checks for the explicit "false" value. If onDrag returns false, the component
+   * cancels the dragging.
+   *
+   * That's why they use "void | false" as the returned type. However, in TypeScript, "void" is not supposed to be used
+   * like that. ESLint will complain "void is not valid as a constituent in a union type". Please check its documentation
+   * for the reason. In order to solve this problem, I changed the returned type to "undefined | false".
+   */
+  const onDrag = (e: DraggableEvent): undefined | false => {
     e.preventDefault();
     // bound to body
     if (
@@ -401,7 +407,19 @@ function LogWindow({ hidden, script, onClose }: LogWindowProps): React.ReactElem
               <div style={{ display: "flex", flexDirection: "column" }}>
                 {script.logs.map(
                   (line: React.ReactNode, i: number): React.ReactNode =>
-                    typeof line !== "string" ? line : <ANSIITypography key={i} text={line} color={lineColor(line)} />,
+                    typeof line !== "string" ? (
+                      line
+                    ) : (
+                      <ANSIITypography
+                        key={i}
+                        text={line}
+                        color={lineColor(line)}
+                        styles={{
+                          display: "inline-block",
+                          fontSize: Settings.styles.tailFontSize,
+                        }}
+                      />
+                    ),
                 )}
               </div>
             </Paper>

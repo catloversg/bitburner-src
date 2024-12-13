@@ -10,13 +10,15 @@ import { Companies } from "../../src/Company/Companies";
 
 describe("Check Save File Continuity", () => {
   establishInitialConditions();
-  // Calling getSaveString forces save info to update
-  saveObject.getSaveData();
+  beforeAll(async () => {
+    // Calling getSaveString forces save info to update
+    await saveObject.getSaveData();
+  });
 
   const savesToTest = ["FactionsSave", "PlayerSave", "CompaniesSave", "GoSave"] as const;
   for (const saveToTest of savesToTest) {
     test(`${saveToTest} continuity`, () => {
-      const parsed = JSON.parse(saveObject[saveToTest]);
+      const parsed: unknown = JSON.parse(saveObject[saveToTest]);
       expect(parsed).toMatchSnapshot();
     });
   }
@@ -57,11 +59,11 @@ function establishInitialConditions() {
   joinFaction(csec);
   joinFaction(slumSnakes);
   csec.playerReputation = 1e6;
-  csec.favor = 20;
+  csec.setFavor(20);
 
   // Companies
   const noodleBar = Companies[CompanyName.NoodleBar];
-  noodleBar.favor = 100;
+  noodleBar.setFavor(100);
   noodleBar.playerReputation = 100000;
 
   // Bladeburner. Adding rank will also add bladeburner faction rep.

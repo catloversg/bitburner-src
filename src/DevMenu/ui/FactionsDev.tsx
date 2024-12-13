@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -6,14 +6,12 @@ import {
   Button,
   FormControl,
   FormControlLabel,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Typography,
   RadioGroup,
   Radio,
+  Box,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -29,17 +27,16 @@ import { Factions } from "../../Faction/Factions";
 import { getRecordValues } from "../../Types/Record";
 import { getEnumHelper } from "../../utils/EnumHelper";
 import { useRerender } from "../../ui/React/hooks";
+import { MaxFavor } from "../../Faction/formulas/favor";
 
-const bigNumber = 1e12;
+const largeAmountOfReputation = 1e12;
 
 export function FactionsDev(): React.ReactElement {
   const [selectedFaction, setSelectedFaction] = useState(Factions[FactionName.Illuminati]);
+  const factions = useMemo(() => {
+    return getRecordValues(Factions).map((faction) => faction.name);
+  }, []);
   const rerender = useRerender();
-
-  function setFactionDropdown(event: SelectChangeEvent): void {
-    if (!getEnumHelper("FactionName").isMember(event.target.value)) return;
-    setSelectedFaction(Factions[event.target.value]);
-  }
 
   function receiveInvite(): void {
     Player.receiveInvite(selectedFaction.name);
@@ -73,7 +70,9 @@ export function FactionsDev(): React.ReactElement {
 
   function modifyFactionRep(modifier: number): (x: number) => void {
     return function (reputation: number): void {
-      if (!isNaN(reputation)) selectedFaction.playerReputation += reputation * modifier;
+      if (!isNaN(reputation)) {
+        selectedFaction.playerReputation += reputation * modifier;
+      }
     };
   }
 
@@ -83,17 +82,19 @@ export function FactionsDev(): React.ReactElement {
 
   function modifyFactionFavor(modifier: number): (x: number) => void {
     return function (favor: number): void {
-      if (!isNaN(favor)) selectedFaction.favor += favor * modifier;
+      if (!isNaN(favor)) {
+        selectedFaction.setFavor(selectedFaction.favor + favor * modifier);
+      }
     };
   }
 
   function resetFactionFavor(): void {
-    selectedFaction.favor = 0;
+    selectedFaction.setFavor(0);
   }
 
   function tonsOfRep(): void {
     for (const faction of getRecordValues(Factions)) {
-      faction.playerReputation = bigNumber;
+      faction.playerReputation = largeAmountOfReputation;
     }
   }
 
@@ -105,17 +106,17 @@ export function FactionsDev(): React.ReactElement {
 
   function tonsOfFactionFavor(): void {
     for (const faction of getRecordValues(Factions)) {
-      faction.favor = bigNumber;
+      faction.setFavor(MaxFavor);
     }
   }
 
   function resetAllFactionFavor(): void {
     for (const faction of getRecordValues(Factions)) {
-      faction.favor = 0;
+      faction.setFavor(0);
     }
   }
 
-  function setDiscovery(event: React.ChangeEvent<HTMLInputElement>, value: string): void {
+  function setDiscovery(_: React.ChangeEvent<HTMLInputElement>, value: string): void {
     if (!getEnumHelper("FactionDiscovery").isMember(value)) return;
     selectedFaction.discovery = value;
     rerender();
@@ -134,35 +135,30 @@ export function FactionsDev(): React.ReactElement {
                 <Typography>Faction:</Typography>
               </td>
               <td>
-                <FormControl>
-                  <InputLabel id="factions-select">Faction</InputLabel>
-                  <Select
-                    labelId="factions-select"
-                    id="factions-dropdown"
-                    onChange={setFactionDropdown}
+                <Box display="flex">
+                  <Tooltip title={`Hear rumor about ${selectedFaction.name}`}>
+                    <Button onClick={receiveRumor} size="large">
+                      <ChatIcon />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title={`Receive invitation to ${selectedFaction.name}`}>
+                    <Button onClick={receiveInvite} size="large">
+                      <ReplyIcon />
+                    </Button>
+                  </Tooltip>
+                  <Autocomplete
+                    style={{ marginLeft: "8px", width: "350px" }}
+                    options={factions}
                     value={selectedFaction.name}
-                    startAdornment={
-                      <>
-                        <Tooltip title={`Hear rumor about ${selectedFaction.name}`}>
-                          <IconButton onClick={receiveRumor} size="large">
-                            <ChatIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={`Receive invitation to ${selectedFaction.name}`}>
-                          <IconButton onClick={receiveInvite} size="large">
-                            <ReplyIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    }
-                  >
-                    {getRecordValues(Factions).map((faction) => (
-                      <MenuItem key={faction.name} value={faction.name}>
-                        {faction.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    renderInput={(params) => <TextField {...params} style={{ height: "100%" }} />}
+                    onChange={(_, factionName) => {
+                      if (!factionName || !getEnumHelper("FactionName").isMember(factionName)) {
+                        return;
+                      }
+                      setSelectedFaction(Factions[factionName]);
+                    }}
+                  ></Autocomplete>
+                </Box>
               </td>
             </tr>
             <tr>
@@ -187,7 +183,7 @@ export function FactionsDev(): React.ReactElement {
                 <Adjuster
                   label="reputation"
                   placeholder="amt"
-                  tons={() => modifyFactionRep(1)(bigNumber)}
+                  tons={() => modifyFactionRep(1)(largeAmountOfReputation)}
                   add={modifyFactionRep(1)}
                   subtract={modifyFactionRep(-1)}
                   reset={resetFactionRep}
@@ -202,7 +198,7 @@ export function FactionsDev(): React.ReactElement {
                 <Adjuster
                   label="favor"
                   placeholder="amt"
-                  tons={() => modifyFactionFavor(1)(2000)}
+                  tons={() => modifyFactionFavor(1)(MaxFavor)}
                   add={modifyFactionFavor(1)}
                   subtract={modifyFactionFavor(-1)}
                   reset={resetFactionFavor}

@@ -30,10 +30,10 @@ export function StatsProgressBar({
   const tooltip = (
     <Typography sx={{ textAlign: "right" }}>
       <strong>Progress:</strong>&nbsp;
-      {formatExp(current)} / {formatExp(max - min)}
+      {formatExp(current)} ({progress.toFixed(2)}%)
       <br />
       <strong>Remaining:</strong>&nbsp;
-      {formatExp(remaining)} ({progress.toFixed(2)}%)
+      {formatExp(remaining)} / {formatExp(max - min)}
     </Typography>
   );
 
@@ -54,7 +54,7 @@ export function StatsProgressBar({
 }
 
 export function StatsProgressOverviewCell({ progress: skill, color }: IStatsOverviewCellProps): React.ReactElement {
-  const classes = useStyles();
+  const { classes } = useStyles();
   return (
     <TableCell
       component="th"

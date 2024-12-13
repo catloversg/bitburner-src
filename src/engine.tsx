@@ -2,13 +2,12 @@ import { convertTimeMsToTimeElapsedString } from "./utils/StringHelperFunctions"
 import { AugmentationName, ToastVariant } from "@enums";
 import { initBitNodeMultipliers } from "./BitNode/BitNode";
 import { initSourceFiles } from "./SourceFile/SourceFiles";
-import { generateRandomContract } from "./CodingContractGenerator";
+import { tryGeneratingRandomContract } from "./CodingContractGenerator";
 import { CONSTANTS } from "./Constants";
 import { Factions } from "./Faction/Factions";
 import { staneksGift } from "./CotMG/Helper";
 import { processPassiveFactionRepGain, inviteToFaction } from "./Faction/FactionHelpers";
 import { Router } from "./ui/GameRoot";
-import { Page } from "./ui/Router";
 import "./utils/Protections"; // Side-effect: Protect against certain unrecoverable errors
 import "./PersonObjects/Player/PlayerObject"; // For side-effect of creating Player
 
@@ -23,7 +22,7 @@ import { checkForMessagesToSend } from "./Message/MessageHelpers";
 import { loadAllRunningScripts, updateOnlineScriptTimes } from "./NetscriptWorker";
 import { Player } from "@player";
 import { saveObject, loadGame } from "./SaveObject";
-import { initForeignServers } from "./Server/AllServers";
+import { GetAllServers, initForeignServers } from "./Server/AllServers";
 import { Settings } from "./Settings/Settings";
 import { FormatsNeedToChange } from "./ui/formatNumber";
 import { initSymbolToStockMap, processStockPrices } from "./StockMarket/StockMarket";
@@ -40,10 +39,31 @@ import { startExploits } from "./Exploits/loops";
 import { calculateAchievements } from "./Achievements/Achievements";
 
 import React from "react";
+import ReactDOM from "react-dom";
 import { setupUncaughtPromiseHandler } from "./UncaughtPromiseHandler";
 import { Button, Typography } from "@mui/material";
 import { SnackbarEvents } from "./ui/React/Snackbar";
 import { SaveData } from "./types";
+import { Go } from "./Go/Go";
+import { EventEmitter } from "./utils/EventEmitter";
+import { Companies } from "./Company/Companies";
+
+declare global {
+  // This property is only available in the dev build
+  // eslint-disable-next-line no-var
+  var Bitburner: {
+    Player: typeof Player;
+    GetAllServers: typeof GetAllServers;
+    Factions: typeof Factions;
+    Companies: typeof Companies;
+    SaveObject: {
+      saveObject: typeof saveObject;
+      loadGame: typeof loadGame;
+    };
+  };
+}
+
+export const GameCycleEvents = new EventEmitter<[]>();
 
 /** Game engine. Handles the main game loop. */
 const Engine: {
@@ -99,7 +119,7 @@ const Engine: {
     // Gang
     if (Player.gang) Player.gang.process(numCycles);
 
-    // Staneks gift
+    // Stanek's gift
     staneksGift.process(numCycles);
 
     // Corporation
@@ -143,14 +163,17 @@ const Engine: {
     checkFactionInvitations: 100,
     passiveFactionGrowth: 5,
     messages: 150,
-    mechanicProcess: 5, // Processes certain mechanics (Corporation, Bladeburner)
+    mechanicProcess: 5, // Process Bladeburner
     contractGeneration: 3000, // Generate Coding Contracts
     achievementsCounter: 60, // Check if we have new achievements
   },
 
   decrementAllCounters: function (numCycles = 1) {
     for (const [counterName, counter] of Object.entries(Engine.Counters)) {
-      if (counter === undefined) throw new Error("counter should not be undefined");
+      if (counter === undefined) {
+        exceptionAlert(new Error(`counter value is undefined. counterName: ${counterName}.`), true);
+        continue;
+      }
       Engine.Counters[counterName] = counter - numCycles;
     }
   },
@@ -187,17 +210,14 @@ const Engine: {
         try {
           Player.bladeburner.process();
         } catch (e) {
-          exceptionAlert("Exception caught in Bladeburner.process(): " + e);
+          exceptionAlert(e, true);
         }
       }
       Engine.Counters.mechanicProcess = 5;
     }
 
     if (Engine.Counters.contractGeneration <= 0) {
-      // X% chance of a contract being generated
-      if (Math.random() <= 0.25) {
-        generateRandomContract();
-      }
+      tryGeneratingRandomContract(1);
       Engine.Counters.contractGeneration = 3000;
     }
 
@@ -221,7 +241,7 @@ const Engine: {
           Engine.Counters.autoSaveCounter = 60 * 5; // Let's check back in a bit
         } else {
           Engine.Counters.autoSaveCounter = Settings.AutosaveInterval * 5;
-          saveObject.saveGame(!Settings.SuppressSavedGameToast);
+          saveObject.saveGame(!Settings.SuppressSavedGameToast).catch((error) => console.error(error));
         }
       }
     }
@@ -248,27 +268,14 @@ const Engine: {
       // Calculate the number of cycles have elapsed while offline
       Engine._lastUpdate = new Date().getTime();
       const lastUpdate = Player.lastUpdate;
-      const timeOffline = Engine._lastUpdate - lastUpdate;
+      let timeOffline = Engine._lastUpdate - lastUpdate;
+      if (timeOffline < 0) {
+        timeOffline = 0;
+      }
       const numCyclesOffline = Math.floor(timeOffline / CONSTANTS.MilliPerCycle);
 
-      // Calculate the number of chances for a contract the player had whilst offline
-      const contractChancesWhileOffline = Math.floor(timeOffline / (1000 * 60 * 10));
-
-      // Generate coding contracts
-      let numContracts = 0;
-      if (contractChancesWhileOffline > 100) {
-        numContracts += Math.floor(contractChancesWhileOffline * 0.25);
-      }
-      if (contractChancesWhileOffline > 0 && contractChancesWhileOffline <= 100) {
-        for (let i = 0; i < contractChancesWhileOffline; ++i) {
-          if (Math.random() <= 0.25) {
-            numContracts++;
-          }
-        }
-      }
-      for (let i = 0; i < numContracts; i++) {
-        generateRandomContract();
-      }
+      // Generate bonus CCTs
+      tryGeneratingRandomContract(timeOffline / CONSTANTS.MillisecondsPerTenMinutes);
 
       let offlineReputation = 0;
       const offlineHackingIncome =
@@ -332,6 +339,8 @@ const Engine: {
       // Bladeburner offline progress
       if (Player.bladeburner) Player.bladeburner.storeCycles(numCyclesOffline);
 
+      Go.storeCycles(numCyclesOffline);
+
       staneksGift.process(numCyclesOffline);
 
       // Sleeves offline progress
@@ -392,12 +401,35 @@ const Engine: {
       // Start interactive tutorial
       iTutorialStart();
     }
+
+    // Expose internal objects/functions in the dev build
+    if (process.env.NODE_ENV === "development") {
+      globalThis.Bitburner = {
+        // Most data is in this object
+        Player: Player,
+        // Manipulate data of servers
+        GetAllServers: GetAllServers,
+        // Manipulate data of Factions and Companies
+        Factions: Factions,
+        Companies: Companies,
+        // saveObject and loadGame can be used to create a custom save/load tool
+        SaveObject: {
+          saveObject: saveObject,
+          loadGame: loadGame,
+        },
+      };
+    }
   },
 
   start: function () {
     // Get time difference
     const _thisUpdate = new Date().getTime();
     let diff = _thisUpdate - Engine._lastUpdate;
+    if (diff < 0) {
+      diff = 0;
+      Engine._lastUpdate = _thisUpdate;
+      Player.lastUpdate = _thisUpdate;
+    }
     const offset = diff % CONSTANTS.MilliPerCycle;
 
     // Divide this by cycle time to determine how many cycles have elapsed since last update
@@ -408,6 +440,11 @@ const Engine: {
       Engine._lastUpdate = _thisUpdate - offset;
       Player.lastUpdate = _thisUpdate - offset;
       Engine.updateGame(diff);
+      if (GameCycleEvents.hasSubscibers()) {
+        ReactDOM.unstable_batchedUpdates(() => {
+          GameCycleEvents.emit();
+        });
+      }
     }
     globalThis.setTimeout(Engine.start, CONSTANTS.MilliPerCycle - offset);
   },
@@ -420,8 +457,7 @@ function warnAutosaveDisabled(): void {
 
   // We don't want this warning to show up on certain pages.
   // When in recovery or importing we want to keep autosave disabled.
-  const ignoredPages = [Page.Recovery as Page, Page.ImportSave];
-  if (ignoredPages.includes(Router.page())) return;
+  if (Router.hidingMessages()) return;
 
   const warningToast = (
     <>

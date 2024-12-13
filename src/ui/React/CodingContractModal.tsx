@@ -56,7 +56,7 @@ export function CodingContractModal(): React.ReactElement {
 
   const contractType = CodingContractTypes[contract.c.type];
   const description = [];
-  for (const [i, value] of contractType.desc(contract.c.data).split("\n").entries())
+  for (const [i, value] of contractType.desc(contract.c.getData()).split("\n").entries())
     description.push(<span key={i} dangerouslySetInnerHTML={{ __html: value + "<br />" }}></span>);
   return (
     <Modal open={contract !== null} onClose={close}>
@@ -67,6 +67,10 @@ export function CodingContractModal(): React.ReactElement {
       </Typography>
       <br />
       <Typography>{description}</Typography>
+      <br />
+      <Typography>
+        If your solution is an empty string, you must leave the text box empty. Do not use "", '', or ``.
+      </Typography>
       <br />
       <TextField
         autoFocus

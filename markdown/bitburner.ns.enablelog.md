@@ -4,7 +4,7 @@
 
 ## NS.enableLog() method
 
-Enable logging for a certain function.
+Enables logging for the given NS function.
 
 **Signature:**
 
@@ -16,7 +16,7 @@ enableLog(fn: string): void;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  fn | string | Name of function for which to enable logging. |
+|  fn | string | Name of the NS function for which to enable logging. |
 
 **Returns:**
 
@@ -26,5 +26,15 @@ void
 
 RAM cost: 0 GB
 
-Re-enables logging for the given function. If `ALL` is passed into this function as an argument, then it will revert the effects of disableLog(`ALL`<!-- -->).
+Logging can be enabled for all functions by passing `ALL` as the argument.
+
+For specific interfaces, use the form "namespace.functionName". (e.g. "ui.setTheme")
+
+## Example
+
+
+```js
+ns.enableLog("hack"); // Enable logging for `ns.hack()`
+
+```
 

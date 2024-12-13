@@ -15,8 +15,7 @@ import TableCell from "@mui/material/TableCell";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
-import makeStyles from "@mui/styles/makeStyles";
-import createStyles from "@mui/styles/createStyles";
+import { makeStyles } from "tss-react/mui";
 import { Theme } from "@mui/material/styles";
 
 import WarningIcon from "@mui/icons-material/Warning";
@@ -39,52 +38,54 @@ import { useBoolean } from "../hooks";
 
 import { ComparisonIcon } from "./ComparisonIcon";
 import { SaveData } from "../../../types";
-import { handleGetSaveDataError } from "../../../Netscript/ErrorMessages";
+import { handleGetSaveDataInfoError } from "../../../utils/ErrorHandler";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      padding: theme.spacing(2),
-      maxWidth: "1000px",
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    padding: theme.spacing(2),
+    maxWidth: "1000px",
 
-      "& .MuiTable-root": {
+    "& .MuiTable-root": {
+      "& .MuiTableCell-root": {
+        borderBottom: `1px solid ${Settings.theme.welllight}`,
+        width: "30%",
+      },
+      "& .MuiTableCell-root:last-child": {
+        width: "10%",
+      },
+
+      "& .MuiTableHead-root .MuiTableRow-root": {
+        backgroundColor: Settings.theme.backgroundsecondary,
+
         "& .MuiTableCell-root": {
-          borderBottom: `1px solid ${Settings.theme.welllight}`,
+          color: Settings.theme.primary,
+          fontWeight: "bold",
         },
+      },
 
-        "& .MuiTableHead-root .MuiTableRow-root": {
+      "& .MuiTableBody-root": {
+        "& .MuiTableRow-root:nth-of-type(odd)": {
+          backgroundColor: Settings.theme.well,
+
+          "& .MuiTableCell-root": {
+            color: Settings.theme.primarylight,
+          },
+        },
+        "& .MuiTableRow-root:nth-of-type(even)": {
           backgroundColor: Settings.theme.backgroundsecondary,
 
           "& .MuiTableCell-root": {
-            color: Settings.theme.primary,
-            fontWeight: "bold",
-          },
-        },
-
-        "& .MuiTableBody-root": {
-          "& .MuiTableRow-root:nth-of-type(odd)": {
-            backgroundColor: Settings.theme.well,
-
-            "& .MuiTableCell-root": {
-              color: Settings.theme.primarylight,
-            },
-          },
-          "& .MuiTableRow-root:nth-of-type(even)": {
-            backgroundColor: Settings.theme.backgroundsecondary,
-
-            "& .MuiTableCell-root": {
-              color: Settings.theme.primarylight,
-            },
+            color: Settings.theme.primarylight,
           },
         },
       },
     },
+  },
 
-    skillTitle: {
-      textTransform: "capitalize",
-    },
-  }),
-);
+  skillTitle: {
+    textTransform: "capitalize",
+  },
+}));
 
 // TODO: move to game constants and/or extract as an enum
 const playerSkills: (keyof Skills)[] = ["hacking", "strength", "defense", "dexterity", "agility", "charisma"];
@@ -92,11 +93,12 @@ const playerSkills: (keyof Skills)[] = ["hacking", "strength", "defense", "dexte
 let initialAutosave = 0;
 
 export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [importData, setImportData] = useState<ImportData | undefined>();
   const [currentData, setCurrentData] = useState<ImportData | undefined>();
   const [isImportModalOpen, { on: openImportModal, off: closeImportModal }] = useBoolean(false);
   const [isSkillsExpanded, { toggle: toggleSkillsExpand }] = useBoolean(true);
+  const [isOthersExpanded, { toggle: toggleOthersExpand }] = useBoolean(true);
   const [headback, setHeadback] = useState(false);
 
   const handleGoBack = (): void => {
@@ -138,7 +140,7 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
         // We cannot show dialog box in this screen (due to "withPopups = false"), so we will try showing it with a
         // delay. 1 second is usually enough to go back to other normal screens that allow showing popups.
         setTimeout(() => {
-          handleGetSaveDataError(error);
+          handleGetSaveDataInfoError(error);
         }, 1000);
       });
     }
@@ -168,7 +170,7 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
               <TableCell></TableCell>
               <TableCell>Current Game</TableCell>
               <TableCell>Being Imported</TableCell>
-              <TableCell width={56}></TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
 
@@ -233,6 +235,7 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
                 )}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell colSpan={4}>
                 <IconButton aria-label="expand row" size="small" onClick={toggleSkillsExpand}>
@@ -255,7 +258,7 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
                             <TableCell className={classes.skillTitle}>{skill}</TableCell>
                             <TableCell>{formatNumberNoSuffix(currentSkill, 0)}</TableCell>
                             <TableCell>{formatNumberNoSuffix(importSkill, 0)}</TableCell>
-                            <TableCell width={56}>
+                            <TableCell>
                               {currentSkill !== importSkill && <ComparisonIcon isBetter={importSkill > currentSkill} />}
                             </TableCell>
                           </TableRow>
@@ -272,86 +275,113 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
             <TableRow>{/* empty row to keep even/odd coloring */}</TableRow>
 
             <TableRow>
-              <TableCell>Augmentations</TableCell>
-              <TableCell>{currentData.playerData?.augmentations}</TableCell>
-              <TableCell>{importData.playerData?.augmentations}</TableCell>
-              <TableCell>
-                {importData.playerData?.augmentations !== currentData.playerData?.augmentations && (
-                  <ComparisonIcon
-                    isBetter={
-                      (importData.playerData?.augmentations ?? 0) > (currentData.playerData?.augmentations ?? 0)
-                    }
-                  />
-                )}
+              <TableCell colSpan={4}>
+                <IconButton aria-label="expand row" size="small" onClick={toggleOthersExpand}>
+                  {isOthersExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                </IconButton>
+                Others
               </TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell colSpan={4} padding="none">
+                <Collapse in={isOthersExpanded}>
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Augmentations</TableCell>
+                        <TableCell>{currentData.playerData?.augmentations}</TableCell>
+                        <TableCell>{importData.playerData?.augmentations}</TableCell>
+                        <TableCell>
+                          {importData.playerData?.augmentations !== currentData.playerData?.augmentations && (
+                            <ComparisonIcon
+                              isBetter={
+                                (importData.playerData?.augmentations ?? 0) >
+                                (currentData.playerData?.augmentations ?? 0)
+                              }
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
 
-            <TableRow>
-              <TableCell>Factions</TableCell>
-              <TableCell>{currentData.playerData?.factions}</TableCell>
-              <TableCell>{importData.playerData?.factions}</TableCell>
-              <TableCell>
-                {importData.playerData?.factions !== currentData.playerData?.factions && (
-                  <ComparisonIcon
-                    isBetter={(importData.playerData?.factions ?? 0) > (currentData.playerData?.factions ?? 0)}
-                  />
-                )}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Achievements</TableCell>
-              <TableCell>{currentData.playerData?.achievements}</TableCell>
-              <TableCell>{importData.playerData?.achievements}</TableCell>
-              <TableCell>
-                {importData.playerData?.achievements !== currentData.playerData?.achievements && (
-                  <ComparisonIcon
-                    isBetter={(importData.playerData?.achievements ?? 0) > (currentData.playerData?.achievements ?? 0)}
-                  />
-                )}
-              </TableCell>
-            </TableRow>
+                      <TableRow>
+                        <TableCell>Factions</TableCell>
+                        <TableCell>{currentData.playerData?.factions}</TableCell>
+                        <TableCell>{importData.playerData?.factions}</TableCell>
+                        <TableCell>
+                          {importData.playerData?.factions !== currentData.playerData?.factions && (
+                            <ComparisonIcon
+                              isBetter={
+                                (importData.playerData?.factions ?? 0) > (currentData.playerData?.factions ?? 0)
+                              }
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Achievements</TableCell>
+                        <TableCell>{currentData.playerData?.achievements}</TableCell>
+                        <TableCell>{importData.playerData?.achievements}</TableCell>
+                        <TableCell>
+                          {importData.playerData?.achievements !== currentData.playerData?.achievements && (
+                            <ComparisonIcon
+                              isBetter={
+                                (importData.playerData?.achievements ?? 0) > (currentData.playerData?.achievements ?? 0)
+                              }
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
 
-            <TableRow>
-              <Tooltip title="The total SF levels owned, except for SF-1 Exploit levels.">
-                <TableCell>Source File Levels</TableCell>
-              </Tooltip>
-              <TableCell>{currentData.playerData?.sourceFiles}</TableCell>
-              <TableCell>{importData.playerData?.sourceFiles}</TableCell>
-              <TableCell>
-                {importData.playerData?.sourceFiles !== currentData.playerData?.sourceFiles && (
-                  <ComparisonIcon
-                    isBetter={(importData.playerData?.sourceFiles ?? 0) > (currentData.playerData?.sourceFiles ?? 0)}
-                  />
-                )}
-              </TableCell>
-            </TableRow>
+                      <TableRow>
+                        <Tooltip title="The total SF levels owned, except for SF-1 Exploit levels.">
+                          <TableCell>Source File Levels</TableCell>
+                        </Tooltip>
+                        <TableCell>{currentData.playerData?.sourceFiles}</TableCell>
+                        <TableCell>{importData.playerData?.sourceFiles}</TableCell>
+                        <TableCell>
+                          {importData.playerData?.sourceFiles !== currentData.playerData?.sourceFiles && (
+                            <ComparisonIcon
+                              isBetter={
+                                (importData.playerData?.sourceFiles ?? 0) > (currentData.playerData?.sourceFiles ?? 0)
+                              }
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
 
-            <TableRow>
-              <Tooltip title="Number of exploits owned.">
-                <TableCell>Exploits</TableCell>
-              </Tooltip>
-              <TableCell>{currentData.playerData?.exploits}</TableCell>
-              <TableCell>{importData.playerData?.exploits}</TableCell>
-              <TableCell>
-                {importData.playerData?.exploits !== currentData.playerData?.exploits && (
-                  <ComparisonIcon
-                    isBetter={(importData.playerData?.exploits ?? 0) > (currentData.playerData?.exploits ?? 0)}
-                  />
-                )}
-              </TableCell>
-            </TableRow>
+                      <TableRow>
+                        <Tooltip title="Number of exploits owned.">
+                          <TableCell>Exploits</TableCell>
+                        </Tooltip>
+                        <TableCell>{currentData.playerData?.exploits}</TableCell>
+                        <TableCell>{importData.playerData?.exploits}</TableCell>
+                        <TableCell>
+                          {importData.playerData?.exploits !== currentData.playerData?.exploits && (
+                            <ComparisonIcon
+                              isBetter={
+                                (importData.playerData?.exploits ?? 0) > (currentData.playerData?.exploits ?? 0)
+                              }
+                            />
+                          )}
+                        </TableCell>
+                      </TableRow>
 
-            <TableRow>
-              <Tooltip title="The player's current BitNode.">
-                <TableCell>BitNode</TableCell>
-              </Tooltip>
-              <TableCell>
-                {currentData.playerData?.bitNode}-{currentData.playerData?.bitNodeLevel}
+                      <TableRow>
+                        <Tooltip title="The player's current BitNode.">
+                          <TableCell>BitNode</TableCell>
+                        </Tooltip>
+                        <TableCell>
+                          {currentData.playerData?.bitNode}-{currentData.playerData?.bitNodeLevel}
+                        </TableCell>
+                        <TableCell>
+                          {importData.playerData?.bitNode}-{importData.playerData?.bitNodeLevel}
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </Collapse>
               </TableCell>
-              <TableCell>
-                {importData.playerData?.bitNode}-{importData.playerData?.bitNodeLevel}
-              </TableCell>
-              <TableCell></TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -369,7 +399,11 @@ export const ImportSave = (props: { saveData: SaveData; automatic: boolean }): J
         <ConfirmationModal
           open={isImportModalOpen}
           onClose={closeImportModal}
-          onConfirm={handleImport}
+          onConfirm={() => {
+            handleImport().catch((error) => {
+              console.error(error);
+            });
+          }}
           confirmationText={
             <>
               Importing new save game data will <strong>completely wipe</strong> the current game data!

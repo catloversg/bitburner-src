@@ -1,7 +1,11 @@
 import { Player, setPlayer } from "@player";
 import { AugmentationName, GoColor, GoOpponent, GoPlayType } from "@enums";
 import { Go } from "../../../src/Go/Go";
-import { boardStateFromSimpleBoard, simpleBoardFromBoard } from "../../../src/Go/boardAnalysis/boardAnalysis";
+import {
+  boardStateFromSimpleBoard,
+  simpleBoardFromBoard,
+  updatedBoardFromSimpleBoard,
+} from "../../../src/Go/boardAnalysis/boardAnalysis";
 import {
   cheatPlayTwoMoves,
   cheatRemoveRouter,
@@ -19,7 +23,7 @@ import {
 } from "../../../src/Go/effects/netscriptGoImplementation";
 import { PlayerObject } from "../../../src/PersonObjects/Player/PlayerObject";
 import "../../../src/Faction/Factions";
-import { getNewBoardState } from "../../../src/Go/boardState/boardState";
+import { getNewBoardState, getNewBoardStateFromSimpleBoard } from "../../../src/Go/boardState/boardState";
 import { installAugmentations } from "../../../src/Augmentation/AugmentationHelpers";
 import { AddToAllServers } from "../../../src/Server/AllServers";
 import { Server } from "../../../src/Server/Server";
@@ -49,7 +53,7 @@ describe("Netscript Go API unit tests", () => {
         throw new Error("Invalid");
       });
 
-      await makePlayerMove(mockLogger, mockError, 0, 0).catch((_) => _);
+      await makePlayerMove(mockLogger, mockError, 0, 0).catch(() => {});
 
       expect(mockError).toHaveBeenCalledWith("Invalid move: 0 0. That node is already occupied by a piece.");
     });
@@ -91,10 +95,10 @@ describe("Netscript Go API unit tests", () => {
   });
 
   describe("getGameState() tests", () => {
-    it("should correctly retrieve the current game state", async () => {
-      const board = ["OXX..", ".....", ".....", "...XX", "...X."];
+    it("should correctly retrieve the current game state", () => {
+      const board = ["OXX..", ".....", "..#..", "...XX", "...X."];
       const boardState = boardStateFromSimpleBoard(board, GoOpponent.Daedalus, GoColor.black);
-      boardState.previousBoards = [["OX..", ".....", ".....", "...XX", "...X."]];
+      boardState.previousBoards = ["OX.........#.....XX...X."];
       Go.currentGame = boardState;
 
       const result = getGameState();
@@ -104,6 +108,8 @@ describe("Netscript Go API unit tests", () => {
         whiteScore: 6.5,
         blackScore: 6,
         previousMove: [0, 2],
+        bonusCycles: 0,
+        komi: 5.5,
       });
     });
   });
@@ -162,6 +168,25 @@ describe("Netscript Go API unit tests", () => {
         [false, true, false, true, false],
       ]);
     });
+
+    it("should return all valid and invalid moves on the board, if a board is provided", () => {
+      const currentBoard = [".....", ".....", ".....", ".....", "....."];
+      Go.currentGame = boardStateFromSimpleBoard(currentBoard, GoOpponent.Daedalus, GoColor.white);
+
+      const board = getNewBoardStateFromSimpleBoard(
+        ["XXO.#", "XO.O.", ".OOOO", "XXXXX", "X.X.X"],
+        ["XXO.#", "XO.O.", ".OOO.", "XXXXX", "X.X.X"],
+      );
+      const result = getValidMoves(board);
+
+      expect(result).toEqual([
+        [false, false, false, false, false],
+        [false, false, false, false, false],
+        [true, false, false, false, false],
+        [false, false, false, false, false],
+        [false, true, false, true, false],
+      ]);
+    });
   });
 
   describe("getChains() unit tests", () => {
@@ -203,9 +228,19 @@ describe("Netscript Go API unit tests", () => {
 
       expect(result).toEqual(["...O#", "..O.O", "?....", ".....", ".X.X."]);
     });
+
+    it("should show the details for the given board, if provided", () => {
+      const currentBoard = [".....", ".....", ".....", ".....", "....."];
+      Go.currentGame = boardStateFromSimpleBoard(currentBoard, GoOpponent.Daedalus, GoColor.white);
+
+      const board = updatedBoardFromSimpleBoard(["XXO.#", "XO.O.", ".OOOO", "XXXXX", "X.X.X"]);
+      const result = getControlledEmptyNodes(board);
+
+      expect(result).toEqual(["...O#", "..O.O", "?....", ".....", ".X.X."]);
+    });
   });
   describe("cheatPlayTwoMoves() tests", () => {
-    it("should handle invalid moves", async () => {
+    it("should handle invalid moves", () => {
       const board = ["XOO..", ".....", ".....", ".....", "....."];
       Go.currentGame = boardStateFromSimpleBoard(board, GoOpponent.Daedalus, GoColor.white);
       const mockError = jest.fn();
@@ -254,7 +289,7 @@ describe("Netscript Go API unit tests", () => {
     });
   });
   describe("cheatRemoveRouter() tests", () => {
-    it("should handle invalid moves", async () => {
+    it("should handle invalid moves", () => {
       const board = ["XOO..", ".....", ".....", ".....", "....."];
       Go.currentGame = boardStateFromSimpleBoard(board, GoOpponent.Daedalus, GoColor.white);
       const mockError = jest.fn();
@@ -292,7 +327,7 @@ describe("Netscript Go API unit tests", () => {
     });
   });
   describe("cheatRepairOfflineNode() tests", () => {
-    it("should handle invalid moves", async () => {
+    it("should handle invalid moves", () => {
       const board = ["XOO..", ".....", ".....", ".....", "....#"];
       Go.currentGame = boardStateFromSimpleBoard(board, GoOpponent.Daedalus, GoColor.white);
       const mockError = jest.fn();

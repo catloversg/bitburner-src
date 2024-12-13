@@ -28,8 +28,6 @@ import { Faction } from "../../Faction/Faction";
 import { Factions } from "../../Faction/Factions";
 import { FactionInvitationEvents } from "../../Faction/ui/FactionInvitationManager";
 import { resetGangs } from "../../Gang/AllGangs";
-import { Cities } from "../../Locations/Cities";
-import { Locations } from "../../Locations/Locations";
 import { Sleeve } from "../Sleeve/Sleeve";
 import { SleeveWorkType } from "../Sleeve/Work/Work";
 import { calculateSkillProgress as calculateSkillProgressF, ISkillProgress } from "../formulas/skill";
@@ -51,6 +49,10 @@ import { achievements } from "../../Achievements/Achievements";
 
 import { isCompanyWork } from "../../Work/CompanyWork";
 import { isMember } from "../../utils/EnumHelper";
+import { canAccessBitNodeFeature } from "../../BitNode/BitNodeUtils";
+import { AlertEvents } from "../../ui/React/AlertManager";
+import { Augmentations } from "../../Augmentation/Augmentations";
+import { PlayerEventType, PlayerEvents } from "./PlayerEvents";
 
 export function init(this: PlayerObject): void {
   /* Initialize Player's home computer */
@@ -66,7 +68,7 @@ export function init(this: PlayerObject): void {
   this.currentServer = SpecialServers.Home;
   AddToAllServers(t_homeComp);
 
-  this.getHomeComputer().programs.push(CompletedProgramName.nuke);
+  this.getHomeComputer().pushProgram(CompletedProgramName.nuke);
 }
 
 export function prestigeAugmentation(this: PlayerObject): void {
@@ -256,19 +258,21 @@ export function takeDamage(this: PlayerObject, amt: number): boolean {
 
   this.hp.current -= amt;
   if (this.hp.current <= 0) {
-    this.hospitalize();
+    this.hospitalize(false);
     return true;
   } else {
     return false;
   }
 }
 
-export function hospitalize(this: PlayerObject): number {
+export function hospitalize(this: PlayerObject, suppressNotification: boolean): number {
   const cost = getHospitalizationCost();
-  SnackbarEvents.emit(`You've been Hospitalized for ${formatMoney(cost)}`, ToastVariant.SUCCESS, 2000);
-
   this.loseMoney(cost, "hospitalization");
   this.hp.current = this.hp.max;
+  if (!suppressNotification) {
+    SnackbarEvents.emit(`You've been hospitalized for ${formatMoney(cost)}`, ToastVariant.SUCCESS, 2000);
+  }
+  PlayerEvents.emit(PlayerEventType.Hospitalized);
   return cost;
 }
 
@@ -298,7 +302,7 @@ export function applyForJob(
   }
 
   if (!company.hasPosition(pos)) {
-    console.error(`Company ${company.name} does not have position ${pos}. Player.applyToCompany() failed.`);
+    console.error(`Company ${company.name} does not have position ${pos.name}. Player.applyToCompany() failed.`);
     return null;
   }
 
@@ -361,16 +365,19 @@ export function getNextCompanyPosition(
   return pos;
 }
 
-export function quitJob(this: PlayerObject, company: CompanyName): void {
+export function quitJob(this: PlayerObject, company: CompanyName, suppressDialog?: boolean): void {
   if (isCompanyWork(this.currentWork) && this.currentWork.companyName === company) {
     this.finishWork(true);
   }
   for (const sleeve of this.sleeves) {
     if (sleeve.currentWork?.type === SleeveWorkType.COMPANY && sleeve.currentWork.companyName === company) {
       sleeve.stopWork();
-      dialogBoxCreate(`You quit ${company} while one of your sleeves was working there. The sleeve is now idle.`);
+      if (!suppressDialog) {
+        dialogBoxCreate(`You quit ${company} while one of your sleeves was working there. The sleeve is now idle.`);
+      }
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
   delete this.jobs[company];
 }
 
@@ -414,7 +421,7 @@ export function reapplyAllSourceFiles(this: PlayerObject): void {
   //Will always be called after reapplyAllAugmentations() so multipliers do not have to be reset
   //this.resetMultipliers();
 
-  for (const [bn, lvl] of this.sourceFiles) {
+  for (const [bn, lvl] of this.activeSourceFiles) {
     const srcFileKey = "SourceFile" + bn;
     const sourceFileObject = SourceFiles[srcFileKey];
     if (!sourceFileObject) {
@@ -453,21 +460,30 @@ export function setBitNodeNumber(this: PlayerObject, n: number): void {
 }
 
 export function queueAugmentation(this: PlayerObject, name: AugmentationName): void {
-  for (const aug of this.queuedAugmentations) {
-    if (aug.name == name) {
-      console.warn(`tried to queue ${name} twice, this may be a bug`);
-      return;
+  if (name !== AugmentationName.NeuroFluxGovernor) {
+    for (const aug of this.queuedAugmentations) {
+      if (name === aug.name) {
+        AlertEvents.emit(`Tried to queue ${name} twice. This is a bug. Please contact developers.`);
+        return;
+      }
+    }
+
+    for (const aug of this.augmentations) {
+      if (aug.name === name) {
+        AlertEvents.emit(
+          `Tried to queue ${name}, but this augmentation was installed. This is a bug. Please contact developers.`,
+        );
+        return;
+      }
     }
   }
 
-  for (const aug of this.augmentations) {
-    if (aug.name == name) {
-      console.warn(`tried to queue ${name} twice, this may be a bug`);
-      return;
-    }
+  const queuedAugmentation = new PlayerOwnedAugmentation(name);
+  if (name === AugmentationName.NeuroFluxGovernor) {
+    const augmentation = Augmentations[name];
+    queuedAugmentation.level = augmentation.getNextLevel();
   }
-
-  this.queuedAugmentations.push(new PlayerOwnedAugmentation(name));
+  this.queuedAugmentations.push(queuedAugmentation);
 }
 
 /************* Coding Contracts **************/
@@ -529,28 +545,13 @@ export function gainCodingContractReward(
   }
 }
 
-export function travel(this: PlayerObject, to: CityName): boolean {
-  if (Cities[to] == null) {
-    console.warn(`Player.travel() called with invalid city: ${to}`);
-    return false;
-  }
-  this.city = to;
-
-  return true;
-}
-
 export function gotoLocation(this: PlayerObject, to: LocationName): boolean {
-  if (Locations[to] == null) {
-    console.warn(`Player.gotoLocation() called with invalid location: ${to}`);
-    return false;
-  }
   this.location = to;
-
   return true;
 }
 
 export function canAccessGrafting(this: PlayerObject): boolean {
-  return this.bitNodeN === 10 || this.sourceFileLvl(10) > 0;
+  return canAccessBitNodeFeature(10);
 }
 
 export function giveExploit(this: PlayerObject, exploit: Exploit): void {
@@ -574,10 +575,17 @@ export function getCasinoWinnings(this: PlayerObject): number {
 }
 
 export function canAccessCotMG(this: PlayerObject): boolean {
-  return this.bitNodeN === 13 || this.sourceFileLvl(13) > 0;
+  return canAccessBitNodeFeature(13);
 }
 
 export function sourceFileLvl(this: PlayerObject, n: number): number {
+  return this.sourceFiles.get(n) ?? 0;
+}
+
+export function activeSourceFileLvl(this: PlayerObject, n: number): number {
+  if (this.bitNodeOptions.sourceFileOverrides.has(n)) {
+    return this.bitNodeOptions.sourceFileOverrides.get(n) ?? 0;
+  }
   return this.sourceFiles.get(n) ?? 0;
 }
 

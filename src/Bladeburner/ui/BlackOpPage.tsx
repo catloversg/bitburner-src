@@ -1,6 +1,6 @@
 import type { Bladeburner } from "../Bladeburner";
 
-import * as React from "react";
+import React from "react";
 import { Button, Typography } from "@mui/material";
 import { FactionName } from "@enums";
 import { BlackOpElem } from "./BlackOpElem";
@@ -8,13 +8,25 @@ import { Router } from "../../ui/GameRoot";
 import { Page } from "../../ui/Router";
 import { CorruptableText } from "../../ui/React/CorruptableText";
 import { blackOpsArray } from "../data/BlackOperations";
+import { GetServer } from "../../Server/AllServers";
+import { SpecialServers } from "../../Server/data/SpecialServers";
+import { Server } from "../../Server/Server";
 
 interface BlackOpPageProps {
   bladeburner: Bladeburner;
 }
 
+function finishBitNode() {
+  const wd = GetServer(SpecialServers.WorldDaemon);
+  if (!(wd instanceof Server)) {
+    throw new Error("WorldDaemon is not a normal server. This is a bug. Please contact developers.");
+  }
+  wd.backdoorInstalled = true;
+  Router.toPage(Page.BitVerse, { flume: false, quick: false });
+}
+
 export function BlackOpPage({ bladeburner }: BlackOpPageProps): React.ReactElement {
-  const blackOps = blackOpsArray.slice(0, bladeburner.numBlackOpsComplete + 1);
+  const blackOperations = blackOpsArray.slice(0, bladeburner.numBlackOpsComplete + 1).reverse();
 
   return (
     <>
@@ -30,16 +42,17 @@ export function BlackOpPage({ bladeburner }: BlackOpPageProps): React.ReactEleme
         <br />
         <br />
         Like normal operations, you may use a team for Black Ops. Failing a black op will incur heavy HP and rank
-        losses.
+        losses. Black Ops success significantly affected by combat stats. Many Ops benefit from Hacking skill.
+        Unaffected by Charisma.
       </Typography>
       {bladeburner.numBlackOpsComplete >= blackOpsArray.length ? (
-        <Button sx={{ my: 1, p: 1 }} onClick={() => Router.toPage(Page.BitVerse, { flume: false, quick: false })}>
-          <CorruptableText content="Destroy w0rld_d34mon" spoiler={false}></CorruptableText>
+        <Button sx={{ my: 1, p: 1 }} onClick={finishBitNode}>
+          <CorruptableText content="Destroy w0r1d_d43m0n" spoiler={false}></CorruptableText>
         </Button>
       ) : (
         <>
-          {blackOps.map((blackOp) => (
-            <BlackOpElem key={blackOp.name} bladeburner={bladeburner} blackOp={blackOp} />
+          {blackOperations.map((blackOperation) => (
+            <BlackOpElem key={blackOperation.name} bladeburner={bladeburner} action={blackOperation} />
           ))}
         </>
       )}

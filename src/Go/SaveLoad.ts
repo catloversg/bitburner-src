@@ -21,6 +21,7 @@ type SaveFormat = {
   previousGame: PreviousGameSaveData;
   currentGame: CurrentGameSaveData;
   stats: PartialRecord<GoOpponent, OpponentStats>;
+  storedCycles: number;
 };
 
 export function getGoSave(): SaveFormat {
@@ -40,6 +41,7 @@ export function getGoSave(): SaveFormat {
       passCount: Go.currentGame.passCount,
     },
     stats: Go.stats,
+    storedCycles: Go.storedCycles,
   };
 }
 
@@ -78,9 +80,14 @@ export function loadGo(data: unknown): boolean {
   Go.currentGame = currentGame;
   Go.previousGame = previousGame;
   Go.stats = stats;
+  Go.storeCycles(loadStoredCycles(parsedData.storedCycles));
 
   // If it's the AI's turn, initiate their turn, which will populate nextTurn
-  if (currentGame.previousPlayer === GoColor.black && currentGame.ai !== GoOpponent.none) makeAIMove(currentGame);
+  if (currentGame.previousPlayer === GoColor.black && currentGame.ai !== GoOpponent.none) {
+    makeAIMove(currentGame).catch((error) => {
+      showError(new Error(`Error while making first IPvGO AI move: ${error}`, { cause: error }));
+    });
+  }
   // If it's not the AI's turn and we're not in gameover status, initialize nextTurn promise based on the previous move/pass
   else if (currentGame.previousPlayer) {
     const previousMove = getPreviousMove();
@@ -145,9 +152,10 @@ function loadStats(stats: unknown): PartialRecord<GoOpponent, OpponentStats> | s
   const entries = Object.entries(stats);
   for (const [opponent, opponentStats] of entries) {
     if (!getEnumHelper("GoOpponent").isMember(opponent)) return `Invalid opponent in Go.stats: ${opponent}`;
-    if (!opponentStats || typeof opponentStats !== "object") "Non-object encountered for an opponent's stats";
-    assertLoadingType<OpponentStats>(opponentStats);
-    const { favor, highestWinStreak, losses, nodes, wins, oldWinStreak, winStreak, nodePower } = opponentStats;
+    if (!opponentStats || typeof opponentStats !== "object") return "Non-object encountered for an opponent's stats";
+    assertLoadingType<OpponentStats>(opponentStats as object);
+    const { favor, highestWinStreak, losses, nodes, wins, oldWinStreak, winStreak, nodePower } =
+      opponentStats as OpponentStats;
     // Integers >= 0. Todo: make a better helper for this.
     if (!isInteger(favor) || favor < 0) return "A favor entry in Go.stats was invalid";
     if (!isInteger(highestWinStreak) || highestWinStreak < 0) return "A highestWinStreak entry in Go.stats was invalid";
@@ -176,5 +184,13 @@ function loadSimpleBoard(simpleBoard: unknown, requiredSize?: number): SimpleBoa
   if (!simpleBoard.every((column) => typeof column === "string" && column.length === requiredSize)) {
     return "Incorrect types or column size while loading a SimpleBoard.";
   }
-  return simpleBoard;
+  return simpleBoard as SimpleBoard;
+}
+
+function loadStoredCycles(storedCycles: unknown): number {
+  if (!storedCycles || isNaN(+storedCycles)) {
+    return 0;
+  }
+
+  return +storedCycles;
 }

@@ -25,12 +25,12 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/material";
-import { useRerender } from "../../ui/React/hooks";
+import { useCycleRerender } from "../../ui/React/hooks";
 
 /** Root React Component for the Hacknet Node UI */
 export function HacknetRoot(): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const rerender = useRerender(200);
+  const rerender = useCycleRerender();
   const [purchaseMultiplier, setPurchaseMultiplier] = useState<number | "MAX">(PurchaseMultipliers.x1);
 
   let totalProduction = 0;
@@ -102,20 +102,35 @@ export function HacknetRoot(): React.ReactElement {
       <Typography variant="h4">Hacknet {hasHacknetServers() ? "Servers" : "Nodes"}</Typography>
       <GeneralInfo hasHacknetServers={hasHacknetServers()} />
 
-      <PurchaseButton cost={purchaseCost} multiplier={purchaseMultiplier} onClick={handlePurchaseButtonClick} />
+      <br />
+
+      <PlayerInfo totalProduction={totalProduction} />
 
       <br />
 
+      {hasHacknetServers() && (
+        <>
+          {/* 
+          The usage of focusRipple in this button is intentional. Without it, after closing the modal by pressing the
+          Esc button, this button has a weird ripple effect (only on Chrome).
+          The documentation says that focusRipple is false by default, but I have to explicitly set it to false to fix
+          this weird ripple effect.
+          */}
+          <Button focusRipple={false} onClick={() => setOpen(true)}>
+            Spend Hashes on Upgrades
+          </Button>
+          <br />
+        </>
+      )}
+
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <PlayerInfo totalProduction={totalProduction} />
+          <PurchaseButton cost={purchaseCost} multiplier={purchaseMultiplier} onClick={handlePurchaseButtonClick} />
         </Grid>
         <Grid item xs={6}>
           <MultiplierButtons onClicks={purchaseMultiplierOnClicks} purchaseMultiplier={purchaseMultiplier} />
         </Grid>
       </Grid>
-
-      {hasHacknetServers() && <Button onClick={() => setOpen(true)}>Spend Hashes on Upgrades</Button>}
 
       <Box sx={{ display: "grid", width: "100%", gridTemplateColumns: "repeat(auto-fit, 30em)" }}>{nodes}</Box>
       <HashUpgradeModal open={open} onClose={() => setOpen(false)} />

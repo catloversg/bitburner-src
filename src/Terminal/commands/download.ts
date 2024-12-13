@@ -11,20 +11,30 @@ export function exportScripts(pattern: string, server: BaseServer, currDir = roo
   if (process.env.HEADLESS_MODE) {
     return;
   }
-  import("jszip").then(JSZip => {
-    const zip = new JSZip.default();
+  import("jszip")
+    .then((JSZip) => {
+      const zip = new JSZip.default();
 
-    for (const [name, file] of getGlobbedFileMap(pattern, server, currDir)) {
-      zip.file(name, new Blob([file.content], { type: "text/plain" }));
-    }
+      for (const [name, file] of getGlobbedFileMap(pattern, server, currDir)) {
+        zip.file(name, new Blob([file.content], { type: "text/plain" }));
+      }
 
-    // Return an error if no files matched, rather than an empty zip folder
-    if (Object.keys(zip.files).length == 0) throw new Error(`No files match the pattern ${pattern}`);
-    const zipFn = `bitburner${
-      hasScriptExtension(pattern) ? "Scripts" : pattern.endsWith(".txt") ? "Texts" : "Files"
-    }.zip`;
-    zip.generateAsync({ type: "blob" }).then((content: Blob) => downloadContentAsFile(content, zipFn));
-  });
+      // Return an error if no files matched, rather than an empty zip folder
+      if (Object.keys(zip.files).length == 0) throw new Error(`No files match the pattern ${pattern}`);
+      const filename = `bitburner${
+        hasScriptExtension(pattern) ? "Scripts" : hasTextExtension(pattern) ? "Texts" : "Files"
+      }.zip`;
+      zip
+        .generateAsync({ type: "blob" })
+        .then((content: Blob) => downloadContentAsFile(content, filename))
+        .catch((error) => {
+          console.error(error);
+          Terminal.error(`Cannot compress scripts with pattern ${pattern} on ${server.hostname}. Error: ${error}`);
+        });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 export function download(args: (string | number | boolean)[], server: BaseServer): void {
@@ -37,9 +47,10 @@ export function download(args: (string | number | boolean)[], server: BaseServer
     try {
       exportScripts(pattern, server, Terminal.currDir);
       return;
-    } catch (e: any) {
-      const msg = String(e?.message ?? e);
-      return Terminal.error(msg);
+    } catch (error) {
+      console.error(error);
+      Terminal.error(`Cannot export scripts with pattern ${pattern} on ${server.hostname}. Error: ${error}`);
+      return;
     }
   }
   const path = Terminal.getFilepath(pattern);

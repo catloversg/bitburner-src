@@ -17,12 +17,14 @@ import {
   getCurrentPlayer,
   getGameState,
   getLiberties,
+  getMoveHistory,
   getOpponentNextMove,
   getStats,
   getValidMoves,
   handlePassTurn,
   makePlayerMove,
   resetBoardState,
+  validateBoardState,
   validateMove,
   validateTurn,
 } from "../Go/effects/netscriptGoImplementation";
@@ -47,16 +49,19 @@ export function NetscriptGo(): InternalAPI<NSGo> {
         validateMove(error(ctx), x, y, "makeMove");
         return makePlayerMove(logger(ctx), error(ctx), x, y);
       },
-    passTurn: (ctx: NetscriptContext) => (): Promise<Play> => {
+    passTurn: (ctx: NetscriptContext) => async (): Promise<Play> => {
       validateTurn(error(ctx), "passTurn()");
       return handlePassTurn(logger(ctx));
     },
-    opponentNextTurn: (ctx: NetscriptContext) => (_logOpponentMove) => {
+    opponentNextTurn: (ctx: NetscriptContext) => async (_logOpponentMove) => {
       const logOpponentMove = typeof _logOpponentMove === "boolean" ? _logOpponentMove : true;
       return getOpponentNextMove(logOpponentMove, logger(ctx));
     },
     getBoardState: () => () => {
       return simpleBoardFromBoard(Go.currentGame.board);
+    },
+    getMoveHistory: () => () => {
+      return getMoveHistory();
     },
     getCurrentPlayer: () => () => {
       return getCurrentPlayer();
@@ -74,26 +79,37 @@ export function NetscriptGo(): InternalAPI<NSGo> {
       return resetBoardState(logger(ctx), error(ctx), opponent, boardSize);
     },
     analysis: {
-      getValidMoves: () => () => {
-        return getValidMoves();
+      getValidMoves: (ctx) => (_boardState, _priorBoardState) => {
+        const State = validateBoardState(error(ctx), _boardState, _priorBoardState);
+        return getValidMoves(State);
       },
-      getChains: () => () => {
-        return getChains();
+      getChains: (ctx) => (_boardState) => {
+        const State = validateBoardState(error(ctx), _boardState);
+        return getChains(State?.board);
       },
-      getLiberties: () => () => {
-        return getLiberties();
+      getLiberties: (ctx) => (_boardState) => {
+        const State = validateBoardState(error(ctx), _boardState);
+        return getLiberties(State?.board);
       },
-      getControlledEmptyNodes: () => () => {
-        return getControlledEmptyNodes();
+      getControlledEmptyNodes: (ctx) => (_boardState) => {
+        const State = validateBoardState(error(ctx), _boardState);
+        return getControlledEmptyNodes(State?.board);
       },
       getStats: () => () => {
         return getStats();
       },
     },
     cheat: {
-      getCheatSuccessChance: (ctx: NetscriptContext) => () => {
+      getCheatSuccessChance:
+        (ctx: NetscriptContext) =>
+        (_cheatCount = Go.currentGame.cheatCount) => {
+          checkCheatApiAccess(error(ctx));
+          const cheatCount = helpers.number(ctx, "cheatCount", _cheatCount);
+          return cheatSuccessChance(cheatCount);
+        },
+      getCheatCount: (ctx: NetscriptContext) => () => {
         checkCheatApiAccess(error(ctx));
-        return cheatSuccessChance(Go.currentGame.cheatCount);
+        return Go.currentGame.cheatCount;
       },
       removeRouter:
         (ctx: NetscriptContext) =>
