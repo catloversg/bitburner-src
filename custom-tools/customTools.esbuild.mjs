@@ -109,6 +109,8 @@ function buildCustomTools() {
       outExtension: outExtension,
       loader: {
         ".png": "file",
+        ".md": "file",
+        ".d.ts": "file",
       },
       plugins: [rawLoader],
       define: {

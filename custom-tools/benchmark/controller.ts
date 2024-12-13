@@ -7,7 +7,7 @@ import { wrap } from "comlink";
 import nodeEndpoint from "comlink/dist/esm/node-adapter.mjs";
 import type { Corporation } from "./corporation";
 
-const saveFilePath = "clean.json";
+const saveFilePath = "clean.gz";
 
 const scriptFolder = "../../BitburnerScripts/dist";
 

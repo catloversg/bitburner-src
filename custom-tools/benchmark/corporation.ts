@@ -31,7 +31,7 @@ export class Corporation {
     // Patch URL.revokeObjectURL
     URL.revokeObjectURL = () => {
     };
-    const saveDataString = readFileSync(data.saveFilePath).toString();
+    const saveDataString = readFileSync(data.saveFilePath);
     if (!saveDataString) {
       console.error("Invalid save data");
       return;
