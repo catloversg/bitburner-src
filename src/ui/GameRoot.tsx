@@ -7,18 +7,18 @@ import { Player } from "@player";
 import { installAugmentations } from "../Augmentation/AugmentationHelpers";
 import { saveObject } from "../SaveObject";
 import { onExport } from "../ExportBonus";
-import { LocationName } from "@enums";
+import { CompletedProgramName, LocationName } from "@enums";
 import { ITutorial, iTutorialStart } from "../InteractiveTutorial";
 import { InteractiveTutorialRoot } from "./InteractiveTutorial/InteractiveTutorialRoot";
 import { ITutorialEvents } from "./InteractiveTutorial/ITutorialEvents";
 
-import { prestigeAugmentation } from "../Prestige";
 import { prestigeWorkerScripts } from "../NetscriptWorker";
 import { dialogBoxCreate } from "./React/DialogBox";
 import { GetAllServers } from "../Server/AllServers";
 import { StockMarket } from "../StockMarket/StockMarket";
 
-import type { PageWithContext, IRouter, ComplexPage, PageContext } from "./Router";
+import type { ComplexPage } from "./Enums";
+import type { PageWithContext, IRouter, PageContext } from "./Router";
 import { Page } from "./Router";
 import { Overview } from "./React/Overview";
 import { SidebarRoot } from "../Sidebar/ui/SidebarRoot";
@@ -34,11 +34,13 @@ import { GameOptionsRoot } from "../GameOptions/ui/GameOptionsRoot";
 import { SleeveRoot } from "../PersonObjects/Sleeve/ui/SleeveRoot";
 import { HacknetRoot } from "../Hacknet/ui/HacknetRoot";
 import { GenericLocation } from "../Locations/ui/GenericLocation";
+import { JobRoot } from "../Locations/ui/JobRoot";
 import { LocationCity } from "../Locations/ui/City";
 import { ProgramsRoot } from "../Programs/ui/ProgramsRoot";
 // import { ScriptEditorRoot } from "../ScriptEditor/ui/ScriptEditorRoot";
 import { MilestonesRoot } from "../Milestones/ui/MilestonesRoot";
 import { TerminalRoot } from "../Terminal/ui/TerminalRoot";
+import { Terminal } from "../Terminal";
 import { DocumentationRoot } from "../Documentation/ui/DocumentationRoot";
 import { ActiveScriptsRoot } from "./ActiveScripts/ActiveScriptsRoot";
 import { FactionsRoot } from "../Faction/ui/FactionsRoot";
@@ -59,7 +61,6 @@ import { AlertManager } from "./React/AlertManager";
 import { PromptManager } from "./React/PromptManager";
 import { FactionInvitationManager } from "../Faction/ui/FactionInvitationManager";
 import { calculateAchievements } from "../Achievements/Achievements";
-
 import { RecoveryMode, RecoveryRoot } from "./React/RecoveryRoot";
 import { AchievementsRoot } from "../Achievements/AchievementsRoot";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -75,6 +76,7 @@ import { HistoryProvider } from "./React/Documentation";
 import { GoRoot } from "../Go/ui/GoRoot";
 import { isBitNodeFinished } from "../BitNode/BitNodeUtils";
 import { exceptionAlert } from "../utils/helpers/exceptionAlert";
+import { SpecialServers } from "../Server/data/SpecialServers";
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
@@ -332,8 +334,10 @@ export function GameRoot(): React.ReactElement {
       break;
     }
     case Page.Job:
+      mainPage = <JobRoot />;
+      break;
     case Page.Location: {
-      mainPage = <GenericLocation loc={pageWithContext.location} />;
+      mainPage = <GenericLocation location={pageWithContext.location} showBackButton={true} />;
       break;
     }
     case Page.Options: {
@@ -350,7 +354,9 @@ export function GameRoot(): React.ReactElement {
           forceKill={killAllScripts}
           softReset={softReset}
           reactivateTutorial={() => {
-            prestigeAugmentation();
+            prestigeWorkerScripts();
+            Player.getHomeComputer().pushProgram(CompletedProgramName.nuke);
+            Terminal.connectToServer(SpecialServers.Home);
             Router.toPage(Page.Terminal);
             iTutorialStart();
           }}

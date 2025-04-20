@@ -8,7 +8,7 @@ import { Modal } from "../../../ui/React/Modal";
 import { dialogBoxCreate } from "../../../ui/React/DialogBox";
 
 import * as actions from "../../Actions";
-import { KEY } from "../../../utils/helpers/keyCodes";
+import { KEY } from "../../../utils/KeyboardEventKey";
 
 interface IProps {
   open: boolean;
@@ -39,16 +39,10 @@ export function SellProductModal(props: IProps): React.ReactElement {
   }
 
   function onAmtChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    if (event.target.value === "") {
-      return;
-    }
     setAmt(event.target.value);
   }
 
   function onPriceChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    if (event.target.value === "") {
-      return;
-    }
     setPrice(event.target.value);
   }
 

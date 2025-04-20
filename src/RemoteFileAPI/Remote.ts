@@ -2,10 +2,14 @@ import { RFAMessage } from "./MessageDefinitions";
 import { RFARequestHandler } from "./MessageHandlers";
 import { SnackbarEvents } from "../ui/React/Snackbar";
 import { ToastVariant } from "@enums";
+import { Settings } from "../Settings/Settings";
+
+function showErrorMessage(address: string, detail: string) {
+  SnackbarEvents.emit(`Error with websocket ${address}, details: ${detail}`, ToastVariant.ERROR, 5000);
+}
 
 export class Remote {
-  connection?: any;
-  static protocol = "ws";
+  connection?: WebSocket;
   ipaddr: string;
   port: number;
 
@@ -18,12 +22,10 @@ export class Remote {
     this.connection?.close();
   }
 
-  private setupConnection() {
+  private setupConnection(): void {
     assertExists(this.connection);
     const address = this.connection.url;
-    this.connection.addEventListener("error", (e: Event) =>
-      SnackbarEvents.emit(`Error with websocket ${address}, details: ${JSON.stringify(e)}`, ToastVariant.ERROR, 5000),
-    );
+    this.connection.addEventListener("error", (e: Event) => showErrorMessage(address, JSON.stringify(e)));
     this.connection.addEventListener("message", handleMessageEvent);
     this.connection.addEventListener("open", () =>
       SnackbarEvents.emit(
@@ -38,12 +40,15 @@ export class Remote {
   }
 
   public startConnection(): void {
-    const address = Remote.protocol + "://" + this.ipaddr + ":" + this.port;
+    const address = (Settings.UseWssForRemoteFileApi ? "wss" : "ws") + "://" + this.ipaddr + ":" + this.port;
     if (process.env.RUNTIME_NODE) {
-      import("ws").then(ws => {
-        this.connection = new ws.WebSocket(address);
-        this.setupConnection();
-      });
+      import("ws")
+        .then((ws) => {
+          // @ts-expect-error
+          this.connection = new ws.WebSocket(address);
+          this.setupConnection();
+        })
+        .catch((error) => console.error(error));
     } else {
       this.connection = new WebSocket(address);
       this.setupConnection();

@@ -16,7 +16,7 @@ import { HacknetServer } from "./HacknetServer";
 import { HashManager } from "./HashManager";
 import { HashUpgrades } from "./HashUpgrades";
 
-import { generateRandomContract } from "../CodingContractGenerator";
+import { generateRandomContract } from "../CodingContract/ContractGenerator";
 import { iTutorialSteps, iTutorialNextStep, ITutorial } from "../InteractiveTutorial";
 import { Player } from "@player";
 import { GetServer } from "../Server/AllServers";
@@ -103,7 +103,7 @@ export function getMaxNumberLevelUpgrades(nodeObj: HacknetNode | HacknetServer, 
   let min = 1;
   let max = maxLevel - 1;
   const levelsToMax = maxLevel - nodeObj.level;
-  if (Player.money > nodeObj.calculateLevelUpgradeCost(levelsToMax, Player.mults.hacknet_node_level_cost)) {
+  if (Player.money >= nodeObj.calculateLevelUpgradeCost(levelsToMax, Player.mults.hacknet_node_level_cost)) {
     return levelsToMax;
   }
 
@@ -142,13 +142,13 @@ export function getMaxNumberRamUpgrades(nodeObj: HacknetNode | HacknetServer, ma
   } else {
     levelsToMax = Math.round(Math.log2(maxLevel / nodeObj.ram));
   }
-  if (Player.money > nodeObj.calculateRamUpgradeCost(levelsToMax, Player.mults.hacknet_node_ram_cost)) {
+  if (Player.money >= nodeObj.calculateRamUpgradeCost(levelsToMax, Player.mults.hacknet_node_ram_cost)) {
     return levelsToMax;
   }
 
   //We'll just loop until we find the max
   for (let i = levelsToMax - 1; i >= 0; --i) {
-    if (Player.money > nodeObj.calculateRamUpgradeCost(i, Player.mults.hacknet_node_ram_cost)) {
+    if (Player.money >= nodeObj.calculateRamUpgradeCost(i, Player.mults.hacknet_node_ram_cost)) {
       return i;
     }
   }
@@ -168,7 +168,7 @@ export function getMaxNumberCoreUpgrades(nodeObj: HacknetNode | HacknetServer, m
   let min = 1;
   let max = maxLevel - 1;
   const levelsToMax = maxLevel - nodeObj.cores;
-  if (Player.money > nodeObj.calculateCoreUpgradeCost(levelsToMax, Player.mults.hacknet_node_core_cost)) {
+  if (Player.money >= nodeObj.calculateCoreUpgradeCost(levelsToMax, Player.mults.hacknet_node_core_cost)) {
     return levelsToMax;
   }
 
@@ -520,15 +520,14 @@ export function purchaseHashUpgrade(upgName: string, upgTarget: string, count = 
         break;
       }
       case "Improve Studying": {
-        // Multiplier handled by HashManager
+        // Multiplier is handled by HashManager
         break;
       }
       case "Improve Gym Training": {
-        // Multiplier handled by HashManager
+        // Multiplier is handled by HashManager
         break;
       }
       case "Exchange for Corporation Research": {
-        // This will throw if player doesn't have a corporation
         const corp = Player.corporation;
         if (corp === null) {
           Player.hashManager.refundUpgrade(upgName, count);
@@ -540,7 +539,6 @@ export function purchaseHashUpgrade(upgName: string, upgTarget: string, count = 
         break;
       }
       case "Exchange for Bladeburner Rank": {
-        // This will throw if player isn't in Bladeburner
         const bladeburner = Player.bladeburner;
         if (bladeburner === null) {
           Player.hashManager.refundUpgrade(upgName, count);
@@ -550,7 +548,6 @@ export function purchaseHashUpgrade(upgName: string, upgTarget: string, count = 
         break;
       }
       case "Exchange for Bladeburner SP": {
-        // This will throw if player isn't in Bladeburner
         const bladeburner = Player.bladeburner;
         if (bladeburner === null) {
           Player.hashManager.refundUpgrade(upgName, count);
