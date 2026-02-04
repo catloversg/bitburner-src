@@ -24,7 +24,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-import { Skills } from "@nsdefs";
+// import { Skills } from "@nsdefs";
 
 import { ImportData, saveObject } from "../../../SaveObject";
 import { Settings } from "../../../Settings/Settings";

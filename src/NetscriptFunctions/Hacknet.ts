@@ -18,10 +18,12 @@ import { HashUpgrades } from "../Hacknet/HashUpgrades";
 import { HashUpgrade } from "../Hacknet/HashUpgrade";
 import { GetServer } from "../Server/AllServers";
 
-import { Hacknet as IHacknet, NodeStats } from "@nsdefs";
+// import { Hacknet as IHacknet, NodeStats } from "@nsdefs";
 import { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
+
+type IHacknet = Hacknet;
 
 export function NetscriptHacknet(): InternalAPI<IHacknet> {
   // Utility function to get Hacknet Node object

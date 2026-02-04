@@ -1,4 +1,4 @@
-import type { ScriptArg } from "@nsdefs";
+// import type { ScriptArg } from "@nsdefs";
 import { toNative } from "./toNative";
 import libarg from "arg";
 import { NetscriptContext } from "../Netscript/APIWrapper";

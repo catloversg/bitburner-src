@@ -1,6 +1,6 @@
-import { StockMarketConstants as ConstantsType } from "@nsdefs";
+// import { StockMarketConstants as ConstantsType } from "@nsdefs";
 
-export const StockMarketConstants: ConstantsType = {
+export const StockMarketConstants: StockMarketConstants = {
   msPerStockUpdate: 6e3,
   msPerStockUpdateMin: 4e3,
   TicksPerCycle: 75,

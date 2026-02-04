@@ -1,4 +1,4 @@
-import { CorpMaterialConstantData, CorpMaterialName } from "@nsdefs";
+// import { CorpMaterialConstantData, CorpMaterialName } from "@nsdefs";
 
 // Map of material (by name) to their sizes (how much space it takes in warehouse)
 export const MaterialInfo: Record<CorpMaterialName, CorpMaterialConstantData> = {

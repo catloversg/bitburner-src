@@ -1,4 +1,4 @@
-import { CorpResearchName } from "@nsdefs";
+// import { CorpResearchName } from "@nsdefs";
 
 export interface ResearchParams {
   name: CorpResearchName;

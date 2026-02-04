@@ -8,7 +8,7 @@ import type { WorkerScript } from "../../../src/Netscript/WorkerScript";
 import { calculateRamUsage } from "../../../src/Script/RamCalculations";
 import { ns } from "../../../src/NetscriptFunctions";
 import type { InternalAPI } from "../../../src/Netscript/APIWrapper";
-import type { Singularity } from "@nsdefs";
+// import type { Singularity } from "@nsdefs";
 import type { ScriptFilePath } from "../../../src/Paths/ScriptFilePath";
 
 type PotentiallyAsyncFunction = (arg?: unknown) => { catch?: PotentiallyAsyncFunction };

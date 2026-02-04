@@ -7,28 +7,28 @@ import { Companies } from "../Company/Companies";
 import { formatReputation, formatMoney, formatRam } from "../ui/formatNumber";
 import type { PlayerObject } from "../PersonObjects/Player/PlayerObject";
 import type { Skills } from "../PersonObjects/Skills";
-import type {
-  PlayerRequirement,
-  BackdoorRequirement,
-  CityRequirement,
-  CompanyReputationRequirement,
-  EmployedByRequirement,
-  JobTitleRequirement,
-  KarmaRequirement,
-  MoneyRequirement,
-  NumAugmentationsRequirement,
-  PeopleKilledRequirement,
-  SkillRequirement,
-  FileRequirement,
-  BladeburnerRankRequirement,
-  HacknetRAMRequirement,
-  HacknetCoresRequirement,
-  HacknetLevelsRequirement,
-  NotRequirement,
-  SomeRequirement,
-  EveryRequirement,
-  BitNodeRequirement,
-} from "@nsdefs";
+// import type {
+//   PlayerRequirement,
+//   BackdoorRequirement,
+//   CityRequirement,
+//   CompanyReputationRequirement,
+//   EmployedByRequirement,
+//   JobTitleRequirement,
+//   KarmaRequirement,
+//   MoneyRequirement,
+//   NumAugmentationsRequirement,
+//   PeopleKilledRequirement,
+//   SkillRequirement,
+//   FileRequirement,
+//   BladeburnerRankRequirement,
+//   HacknetRAMRequirement,
+//   HacknetCoresRequirement,
+//   HacknetLevelsRequirement,
+//   NotRequirement,
+//   SomeRequirement,
+//   EveryRequirement,
+//   BitNodeRequirement,
+// } from "@nsdefs";
 import { calculateEffectiveRequiredReputation } from "../Company/utils";
 
 /**

@@ -1,4 +1,4 @@
-import { CorpMaterialName, CorpResearchName, CorpStateName } from "@nsdefs";
+// import { CorpMaterialName, CorpResearchName, CorpStateName } from "@nsdefs";
 import { CityName, CorpEmployeeJob, IndustryType } from "@enums";
 import { constructorsForReviver, Generic_toJSON, Generic_fromJSON, IReviverValue } from "../utils/JSONReviver";
 import { IndustryResearchTrees, IndustriesData } from "./data/IndustryData";

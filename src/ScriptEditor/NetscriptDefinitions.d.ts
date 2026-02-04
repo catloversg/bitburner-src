@@ -1,7 +1,7 @@
 /**
  * @public
  */
-export type _ValueOf<T> = T[keyof T];
+type _ValueOf<T> = T[keyof T];
 
 /** @public */
 type SuccessResult<T extends object> = { success: true; message?: string } & T;
@@ -609,7 +609,7 @@ interface HacknetServerConstants {
  * A server. Not all servers have all of these properties - optional properties are missing on certain servers.
  * @public
  */
-export interface Server {
+interface Server {
   /** Hostname. Must be unique */
   hostname: string;
   /** IP Address. Must be unique */
@@ -1151,7 +1151,7 @@ type SleeveSynchroTask = { type: "SYNCHRO" };
 
 /** Object representing a sleeve current task.
  * @public */
-export type SleeveTask =
+type SleeveTask =
   | SleeveBladeburnerTask
   | SleeveClassTask
   | SleeveCompanyTask
@@ -1164,7 +1164,7 @@ export type SleeveTask =
 
 /** Object representing a port. A port is a serialized queue.
  * @public */
-export interface NetscriptPort {
+interface NetscriptPort {
   /** Write data to a port.
    * @remarks
    * RAM cost: 0 GB
@@ -1244,7 +1244,7 @@ export interface NetscriptPort {
  * Stock market API
  * @public
  */
-export interface Stock {
+interface Stock {
   /**
    * Get game constants for the stock market mechanic.
    *
@@ -1725,7 +1725,7 @@ export interface Stock {
  *
  * @public
  */
-export interface BaseTask {
+interface BaseTask {
   /**
    * The number of game engine cycles has passed since this task started. 1 engine cycle = 200ms.
    */
@@ -1740,7 +1740,7 @@ export interface BaseTask {
  *
  * @public
  */
-export interface StudyTask extends BaseTask {
+interface StudyTask extends BaseTask {
   type: "CLASS";
   classType: string;
   location: LocationName;
@@ -1754,7 +1754,7 @@ export interface StudyTask extends BaseTask {
  *
  * @public
  */
-export interface CompanyWorkTask extends BaseTask {
+interface CompanyWorkTask extends BaseTask {
   type: "COMPANY";
   companyName: CompanyName;
 }
@@ -1767,7 +1767,7 @@ export interface CompanyWorkTask extends BaseTask {
  *
  * @public
  */
-export interface CreateProgramWorkTask extends BaseTask {
+interface CreateProgramWorkTask extends BaseTask {
   type: "CREATE_PROGRAM";
   programName: string;
 }
@@ -1780,7 +1780,7 @@ export interface CreateProgramWorkTask extends BaseTask {
  *
  * @public
  */
-export interface CrimeTask extends BaseTask {
+interface CrimeTask extends BaseTask {
   type: "CRIME";
   crimeType: CrimeType;
 }
@@ -1793,7 +1793,7 @@ export interface CrimeTask extends BaseTask {
  *
  * @public
  */
-export interface FactionWorkTask extends BaseTask {
+interface FactionWorkTask extends BaseTask {
   type: "FACTION";
   factionWorkType: FactionWorkType;
   factionName: FactionName;
@@ -1807,7 +1807,7 @@ export interface FactionWorkTask extends BaseTask {
  *
  * @public
  */
-export interface GraftingTask extends BaseTask {
+interface GraftingTask extends BaseTask {
   type: "GRAFTING";
   augmentation: string;
   /**
@@ -1824,7 +1824,7 @@ export interface GraftingTask extends BaseTask {
  *
  * @public
  */
-export type Task = StudyTask | CompanyWorkTask | CreateProgramWorkTask | CrimeTask | FactionWorkTask | GraftingTask;
+type Task = StudyTask | CompanyWorkTask | CreateProgramWorkTask | CrimeTask | FactionWorkTask | GraftingTask;
 
 /**
  * Default value:
@@ -1839,7 +1839,7 @@ export type Task = StudyTask | CompanyWorkTask | CreateProgramWorkTask | CrimeTa
  *
  * @public
  */
-export interface BitNodeOptions extends BitNodeBooleanOptions {
+interface BitNodeOptions extends BitNodeBooleanOptions {
   sourceFileOverrides: Map<number, number>;
   intelligenceOverride: number | undefined;
 }
@@ -1855,7 +1855,7 @@ export interface BitNodeOptions extends BitNodeBooleanOptions {
  *
  * @public
  */
-export interface BitNodeBooleanOptions {
+interface BitNodeBooleanOptions {
   restrictHomePCUpgrade: boolean;
   disableGang: boolean;
   disableCorporation: boolean;
@@ -1872,7 +1872,7 @@ export interface BitNodeBooleanOptions {
  * Source-File 4 levels.
  * @public
  */
-export interface Singularity {
+interface Singularity {
   /**
    * This function returns the save data.
    *
@@ -2875,7 +2875,7 @@ export interface Singularity {
  * @public
  * @returns - An object representing the requirements and salary for a company/position combination.
  */
-export interface CompanyPositionInfo {
+interface CompanyPositionInfo {
   name: JobName;
   field: JobField;
   nextPosition: JobName | null;
@@ -2904,7 +2904,7 @@ type HacknetServerHashUpgrade =
  * Not all these functions are immediately available.
  * @public
  */
-export interface Hacknet {
+interface Hacknet {
   /**
    * Get the number of hacknet nodes you own.
    * @remarks
@@ -3358,7 +3358,7 @@ type BladeburnerSkillName = _ValueOf<BladeburnerSkillNameEnumType>;
 /**
  * @public
  */
-export type BladeburnerActionName =
+type BladeburnerActionName =
   | BladeburnerGeneralActionName
   | BladeburnerContractName
   | BladeburnerOperationName
@@ -3381,7 +3381,7 @@ type SpecialBladeburnerActionTypeForSleeve = _ValueOf<SpecialBladeburnerActionEn
 /**
  * @public
  */
-export type BladeburnerActionTypeForSleeve =
+type BladeburnerActionTypeForSleeve =
   | Exclude<BladeburnerGeneralActionName, BladeburnerGeneralActionNameEnumType["InciteViolence"]>
   | SpecialBladeburnerActionTypeForSleeve;
 
@@ -3392,7 +3392,7 @@ export type BladeburnerActionTypeForSleeve =
  * this API.
  * @public
  */
-export interface Bladeburner {
+interface Bladeburner {
   /**
    * List all contracts.
    * @remarks
@@ -3953,7 +3953,7 @@ export interface Bladeburner {
  * Coding Contract API
  * @public
  */
-export interface CodingContract {
+interface CodingContract {
   /**
    * Attempts a coding contract, returning a reward string on success or empty string on failure.
    * @remarks
@@ -4087,7 +4087,7 @@ export interface CodingContract {
  * Cloud API
  * @public
  */
-export interface Cloud {
+interface Cloud {
   /**
    * Get cost of purchasing a cloud server.
    * @remarks
@@ -4226,7 +4226,7 @@ export interface Cloud {
  * Format API
  * @public
  */
-export interface Format {
+interface Format {
   /**
    * Format a number.
    * @remarks
@@ -4335,13 +4335,13 @@ type DarknetResponseCodeType = {
 type DarknetResponseCode = _ValueOf<DarknetResponseCodeType>;
 
 /** @public */
-export type DarknetResult = { success: boolean; code: DarknetResponseCode; message: string };
+type DarknetResult = { success: boolean; code: DarknetResponseCode; message: string };
 
 /**
  * Darknet server data.
  * @public
  */
-export interface DarknetServerData {
+interface DarknetServerData {
   /** Hostname. Must be unique */
   hostname: string;
   /** IP Address. Must be unique */
@@ -4386,7 +4386,7 @@ export interface DarknetServerData {
 }
 
 /** @public */
-export type CacheResult = {
+type CacheResult = {
   success: boolean;
   message: string;
   karmaLoss: number;
@@ -4443,7 +4443,7 @@ type DarknetInstability = {
  * Darknet API
  * @public
  */
-export interface Darknet {
+interface Darknet {
   /**
    * Sends a network request to try to authenticate on a darkweb server. The target server must be directly connected
    * to the server that the script is running on. The speed of authentication scales with the number of threads used.
@@ -4765,7 +4765,7 @@ export interface Darknet {
  * If you are not in BitNode-2, then you must have Source-File 2 in order to use this API.
  * @public
  */
-export interface Gang {
+interface Gang {
   /**
    * Create a gang.
    * @remarks
@@ -5132,7 +5132,7 @@ type SimpleOpponentStats = {
  *
  * @public
  */
-export interface GoAnalysis {
+interface GoAnalysis {
   /**
    * Shows if each point on the board is a valid move for the player.
    * By default, analyzes the current board state.
@@ -5327,7 +5327,7 @@ export interface GoAnalysis {
  *
  * @public
  */
-export interface GoCheat {
+interface GoCheat {
   /**
    * Returns your chance of successfully playing one of the special moves in the ns.go.cheat API.
    * Scales up with your crime success rate stat.
@@ -5474,7 +5474,7 @@ export interface GoCheat {
  * IPvGO api
  * @public
  */
-export interface Go {
+interface Go {
   /**
    *  Make a move on the IPvGO subnet game board, and await the opponent's response.
    *  x:0 y:0 represents the bottom-left corner of the board in the UI.
@@ -5648,7 +5648,7 @@ export interface Go {
  * If you are not in BitNode-10, then you must have Source-File 10 in order to use this API.
  * @public
  */
-export interface Sleeve {
+interface Sleeve {
   /**
    * Get the number of sleeves you own.
    * @remarks
@@ -5948,7 +5948,7 @@ export interface Sleeve {
  * This API requires Source-File 10 to use.
  * @public
  */
-export interface Grafting {
+interface Grafting {
   /**
    * Retrieve the grafting cost of an aug.
    * @remarks
@@ -6443,7 +6443,7 @@ interface DarknetFormulas {
  * You need Formulas.exe on your home computer to use this API.
  * @public
  */
-export interface Formulas {
+interface Formulas {
   mockServer(): Server;
   mockPlayer(): Player;
   mockPerson(): Person;
@@ -6902,7 +6902,7 @@ interface UserInterface {
  * }
  * ```
  */
-export interface NS {
+interface NS {
   /**
    * Namespace for {@link Hacknet | hacknet} functions. Some of this API contains spoilers.
    * @remarks RAM cost: 4 GB.
@@ -9396,7 +9396,7 @@ type CodingContractNameEnumType = {
 type CodingContractName = _ValueOf<CodingContractNameEnumType>;
 
 /** @public */
-export type CodingContractSignatures = {
+type CodingContractSignatures = {
   "Find Largest Prime Factor": [number, number];
   "Subarray with Maximum Sum": [number[], number];
   "Total Ways to Sum": [number, number];
@@ -9429,7 +9429,7 @@ export type CodingContractSignatures = {
 };
 
 /** @public */
-export type CodingContractObject = {
+type CodingContractObject = {
   [T in keyof CodingContractSignatures]: {
     type: T;
     data: CodingContractSignatures[T][0];
@@ -9470,7 +9470,7 @@ type NSEnums = {
  *
  * @public
  */
-export interface OfficeAPI {
+interface OfficeAPI {
   /**
    * Hire an employee.
    *
@@ -9644,7 +9644,7 @@ export interface OfficeAPI {
  *
  * @public
  */
-export interface WarehouseAPI {
+interface WarehouseAPI {
   /**
    * Set material sell data.
    *
@@ -9989,7 +9989,7 @@ type CreatingCorporationCheckResult = _ValueOf<CreatingCorporationCheckResultEnu
  * Corporation API
  * @public
  */
-export interface Corporation extends WarehouseAPI, OfficeAPI {
+interface Corporation extends WarehouseAPI, OfficeAPI {
   /**
    * Return whether the player has a corporation. Does not require API access.
    *
@@ -10685,7 +10685,7 @@ interface Warehouse {
  * Office for a division in a city.
  * @public
  */
-export interface Office {
+interface Office {
   /** City of the office */
   city: CityName;
   /** Maximum number of employee */
@@ -11056,7 +11056,7 @@ interface EveryRequirement {
  * @public
  * @returns - An object representing one requirement.
  */
-export type PlayerRequirement =
+type PlayerRequirement =
   | MoneyRequirement
   | SkillRequirement
   | KarmaRequirement

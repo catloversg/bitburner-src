@@ -1,9 +1,12 @@
 import { currentNodeMults } from "./BitNode/BitNodeMultipliers";
-import { Person as IPerson } from "@nsdefs";
+// import { Person as IPerson } from "@nsdefs";
 import { calculateIntelligenceBonus } from "./PersonObjects/formulas/intelligence";
-import { Server as IServer } from "@nsdefs";
+// import { Server as IServer } from "@nsdefs";
 import { clampNumber } from "./utils/helpers/clampNumber";
 import { DarknetServer } from "./Server/DarknetServer";
+
+type IPerson = Person;
+type IServer = Server;
 
 /** Returns the chance the person has to successfully hack a server */
 export function calculateHackingChance(server: IServer, person: IPerson): number {

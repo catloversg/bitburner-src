@@ -1,4 +1,4 @@
-import type { Bladeburner as INetscriptBladeburner } from "@nsdefs";
+// import type { Bladeburner as INetscriptBladeburner } from "@nsdefs";
 import type { Action, LevelableAction } from "../Bladeburner/Types";
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
 
@@ -10,7 +10,7 @@ import {
   BladeburnerOperationName,
   BladeburnerSkillName,
 } from "@enums";
-import { Bladeburner, BladeburnerPromise } from "../Bladeburner/Bladeburner";
+import { Bladeburner as InternalBladeburner, BladeburnerPromise } from "../Bladeburner/Bladeburner";
 import { currentNodeMults } from "../BitNode/BitNodeMultipliers";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
@@ -22,12 +22,14 @@ import { canAccessBitNodeFeature } from "../BitNode/BitNodeUtils";
 import { calculateActionRankGain, calculateActionReputationGain } from "../Bladeburner/Formulas";
 import { CONSTANTS } from "../Constants";
 
+type INetscriptBladeburner = Bladeburner;
+
 export function NetscriptBladeburner(): InternalAPI<INetscriptBladeburner> {
   const checkBladeburnerAccess = function (ctx: NetscriptContext): void {
     getBladeburner(ctx);
     return;
   };
-  const getBladeburner = function (ctx: NetscriptContext): Bladeburner {
+  const getBladeburner = function (ctx: NetscriptContext): InternalBladeburner {
     const apiAccess = canAccessBitNodeFeature(7) || canAccessBitNodeFeature(6);
     if (!apiAccess) {
       throw helpers.errorMessage(ctx, "You have not unlocked the Bladeburner API.", "API ACCESS");

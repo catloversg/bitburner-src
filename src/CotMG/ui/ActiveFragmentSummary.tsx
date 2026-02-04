@@ -8,7 +8,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Table from "@mui/material/Table";
 import { TableBody, TableCell, TableRow } from "@mui/material";
-import type { FragmentType } from "@nsdefs";
+// import type { FragmentType } from "@nsdefs";
 
 interface IProps {
   gift: StaneksGift;

@@ -2,7 +2,7 @@ import type { Corporation } from "./Corporation";
 import type { Division } from "./Division";
 
 import { Player } from "@player";
-import { CorpMaterialName, CorpSmartSupplyOption } from "@nsdefs";
+// import { CorpMaterialName, CorpSmartSupplyOption } from "@nsdefs";
 import { CityName, CorpUnlockName } from "@enums";
 import { Material } from "./Material";
 import { MaterialInfo } from "./MaterialInfo";

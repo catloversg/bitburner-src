@@ -1,5 +1,5 @@
 import { Player } from "@player";
-import type { DarknetServerData, Person as IPerson } from "@nsdefs";
+// import type { DarknetServerData, Person as IPerson } from "@nsdefs";
 import { AugmentationName, CompletedProgramName, LiteratureName } from "@enums";
 import { generateContract } from "../../CodingContract/ContractGenerator";
 import {

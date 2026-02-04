@@ -1,9 +1,11 @@
-import { Person as IPerson } from "@nsdefs";
+// import { Person as IPerson } from "@nsdefs";
 import { Player } from "@player";
 
 import { CONSTANTS } from "../../Constants";
 import { currentNodeMults } from "../../BitNode/BitNodeMultipliers";
 import { Faction } from "../Faction";
+
+type IPerson = Person;
 
 export function repFromDonation(amt: number, person: IPerson): number {
   return (amt / CONSTANTS.DonateMoneyToRepDivisor) * person.mults.faction_rep * currentNodeMults.FactionWorkRepGain;

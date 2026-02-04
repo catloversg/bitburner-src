@@ -25,7 +25,7 @@ import { roundToTwo } from "./utils/helpers/roundToTwo";
 
 import { parseCommand } from "./Terminal/Parser";
 import { Terminal } from "./Terminal";
-import type { ScriptArg, Result } from "@nsdefs";
+// import type { ScriptArg, Result } from "@nsdefs";
 import { CompleteRunOptions, getRunningScriptsByArgs } from "./Netscript/NetscriptHelpers";
 import { handleUnknownError } from "./utils/ErrorHandler";
 import { isLegacyScript, resolveScriptFilePath, ScriptFilePath } from "./Paths/ScriptFilePath";

@@ -1,5 +1,5 @@
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
-import type { Infiltration as NetscriptInfiltation, InfiltrationLocation } from "@nsdefs";
+// import type { Infiltration as NetscriptInfiltation, InfiltrationLocation } from "@nsdefs";
 import { FactionName, LocationName } from "@enums";
 import { Location } from "../Locations/Location";
 import { Locations } from "../Locations/Locations";
@@ -15,7 +15,9 @@ import { helpers } from "../Netscript/NetscriptHelpers";
 import { filterTruthy } from "../utils/helpers/ArrayHelpers";
 import { exceptionAlert } from "../utils/helpers/exceptionAlert";
 
-export function NetscriptInfiltration(): InternalAPI<NetscriptInfiltation> {
+type NetscriptInfiltration = Infiltration;
+
+export function NetscriptInfiltration(): InternalAPI<NetscriptInfiltration> {
   const getLocationsWithInfiltrations = Object.values(Locations).filter(
     (location: Location) => location.infiltrationData,
   );

@@ -1,5 +1,5 @@
 import { Player } from "@player";
-import { CreatingCorporationCheckResult } from "@nsdefs";
+// import { CreatingCorporationCheckResult } from "@nsdefs";
 import { PositiveInteger, isPositiveInteger } from "../types";
 import { formatShares } from "../ui/formatNumber";
 import { Corporation } from "./Corporation";

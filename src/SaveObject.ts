@@ -1,4 +1,4 @@
-import { Skills } from "@nsdefs";
+// import { Skills } from "@nsdefs";
 
 import { loadAliases, loadGlobalAliases, Aliases, GlobalAliases } from "./Alias";
 import { getCompaniesSave, loadCompanies } from "./Company/Companies";

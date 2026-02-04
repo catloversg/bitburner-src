@@ -1,5 +1,5 @@
 import type { ValidateFunction } from "ajv/dist/types";
-import type { IStyleSettings } from "../ScriptEditor/NetscriptDefinitions";
+// import type { IStyleSettings } from "../ScriptEditor/NetscriptDefinitions";
 import type { IScriptEditorTheme } from "../ScriptEditor/ui/themes";
 import type { ITheme } from "../Themes/Themes";
 import { JsonSchemaValidator } from "./JsonSchemaValidator";

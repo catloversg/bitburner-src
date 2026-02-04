@@ -1,4 +1,4 @@
-import { Format } from "@nsdefs";
+// import { Format } from "@nsdefs";
 import { InternalAPI } from "src/Netscript/APIWrapper";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { formatNumber, formatPercent, formatRam } from "../ui/formatNumber";

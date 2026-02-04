@@ -7,7 +7,7 @@
  * Sleeves are unlocked in BitNode-10.
  */
 
-import type { SleevePerson } from "@nsdefs";
+// import type { SleevePerson } from "@nsdefs";
 import type { Augmentation } from "../../Augmentation/Augmentation";
 import type { SleeveWork } from "./Work/Work";
 

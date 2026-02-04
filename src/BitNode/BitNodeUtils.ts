@@ -1,5 +1,5 @@
 import { Player } from "@player";
-import { type BitNodeOptions } from "@nsdefs";
+// import { type BitNodeOptions } from "@nsdefs";
 import { GetServer } from "../Server/AllServers";
 import { Server } from "../Server/Server";
 import { SpecialServers } from "../Server/data/SpecialServers";

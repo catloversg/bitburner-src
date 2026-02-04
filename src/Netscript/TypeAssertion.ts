@@ -1,5 +1,5 @@
 import { exampleDarknetServerData } from "../DarkNet/Enums";
-import type { DarknetServerData } from "@nsdefs";
+// import type { DarknetServerData } from "@nsdefs";
 import type { NetscriptContext } from "./APIWrapper";
 import { errorMessage } from "./ErrorMessages";
 

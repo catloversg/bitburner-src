@@ -1,4 +1,4 @@
-import type { FragmentType } from "@nsdefs";
+// import type { FragmentType } from "@nsdefs";
 
 // Numeric enum
 export const FragmentTypeEnum = {

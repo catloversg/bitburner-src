@@ -1,5 +1,5 @@
 import type { Augmentation } from "../Augmentation/Augmentation";
-import type { Sleeve as NetscriptSleeve } from "@nsdefs";
+// import type { Sleeve as NetscriptSleeve } from "@nsdefs";
 import type { ActionIdentifier } from "../Bladeburner/Types";
 
 import { Player } from "@player";
@@ -20,6 +20,8 @@ import {
   purchaseSleeve,
   purchaseSleeveMemoryUpgrade,
 } from "../PersonObjects/Sleeve/SleeveCovenantPurchases";
+
+type NetscriptSleeve = Sleeve;
 
 export const checkBitNodeRequirement = function (ctx: NetscriptContext) {
   if (Player.bitNodeN !== 10) {

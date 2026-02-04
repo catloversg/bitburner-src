@@ -1,6 +1,6 @@
 import { BaseServer } from "./BaseServer";
 import { constructorsForReviver, IReviverValue } from "../utils/JSONReviver";
-import type { DarknetServerData } from "@nsdefs";
+// import type { DarknetServerData } from "@nsdefs";
 import { exampleDarknetServerData } from "../DarkNet/Enums";
 import { createRandomIp } from "../utils/IPAddress";
 import type { CacheFilePath } from "../Paths/CacheFilePath";

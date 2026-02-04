@@ -14,7 +14,7 @@ import {
 import { FormatsNeedToChange } from "../../../src/ui/formatNumber";
 import { CrimeWork } from "../../../src/Work/CrimeWork";
 import type { Action, ActionIdentifier } from "../../../src/Bladeburner/Types";
-import type { Skills } from "@nsdefs";
+// import type { Skills } from "@nsdefs";
 import { BlackOperations } from "../../../src/Bladeburner/data/BlackOperations";
 import { applyAugmentation } from "../../../src/Augmentation/AugmentationHelpers";
 import { PlayerOwnedAugmentation } from "../../../src/Augmentation/PlayerOwnedAugmentation";

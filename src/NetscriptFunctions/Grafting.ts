@@ -1,7 +1,7 @@
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
 
 import { Player } from "@player";
-import { Grafting as IGrafting } from "@nsdefs";
+// import { Grafting as IGrafting } from "@nsdefs";
 import { AugmentationName, CityName } from "@enums";
 import { Augmentations } from "../Augmentation/Augmentations";
 import { hasAugmentationPrereqs } from "../Faction/FactionHelpers";
@@ -12,6 +12,8 @@ import { Page } from "../ui/Router";
 import { GraftingWork } from "../Work/GraftingWork";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
+
+type IGrafting = Grafting;
 
 export function NetscriptGrafting(): InternalAPI<IGrafting> {
   const checkGraftingAPIAccess = (ctx: NetscriptContext): void => {

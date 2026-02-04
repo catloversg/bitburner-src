@@ -1,5 +1,5 @@
-import type { Gang as IGang, EquipmentStats, GangOtherInfoObject } from "@nsdefs";
-import type { Gang } from "../Gang/Gang";
+// import type { Gang as IGang, EquipmentStats, GangOtherInfoObject } from "@nsdefs";
+import type { Gang as InternalGang } from "../Gang/Gang";
 import type { GangMember } from "../Gang/GangMember";
 import type { GangMemberTask } from "../Gang/GangMemberTask";
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
@@ -15,9 +15,11 @@ import { helpers } from "../Netscript/NetscriptHelpers";
 import { getEnumHelper } from "../utils/EnumHelper";
 import { CONSTANTS } from "../Constants";
 
+type IGang = Gang;
+
 export function NetscriptGang(): InternalAPI<IGang> {
   /** Functions as an API check and also returns the gang object */
-  const getGang = function (ctx: NetscriptContext): Gang {
+  const getGang = function (ctx: NetscriptContext): InternalGang {
     if (!Player.gang) throw helpers.errorMessage(ctx, "Must have joined gang", "API ACCESS");
     return Player.gang;
   };

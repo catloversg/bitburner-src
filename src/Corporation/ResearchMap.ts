@@ -1,5 +1,5 @@
 import { Research } from "./Research";
-import { CorpResearchName } from "@nsdefs";
+// import { CorpResearchName } from "@nsdefs";
 
 // A full record ensures that every research name is present
 /** A record for looking up a research object from the name */

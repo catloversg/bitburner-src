@@ -1,6 +1,6 @@
 import type { Division } from "./Division";
 
-import { CorpMaterialName } from "@nsdefs";
+// import { CorpMaterialName } from "@nsdefs";
 import { CityName, CorpEmployeeJob } from "@enums";
 import { IndustriesData } from "./data/IndustryData";
 import { MaterialInfo } from "./MaterialInfo";

@@ -5,13 +5,15 @@ import { canAcceptStaneksGift, staneksGift } from "../CotMG/Helper";
 import { Fragments, FragmentById } from "../CotMG/Fragment";
 import { FragmentTypeEnum } from "../CotMG/FragmentType";
 
-import type { Stanek as IStanek } from "@nsdefs";
+// import type { Stanek as IStanek } from "@nsdefs";
 import type { NetscriptContext, InternalAPI } from "../Netscript/APIWrapper";
 import { applyAugmentation } from "../Augmentation/AugmentationHelpers";
 import { joinFaction } from "../Faction/FactionHelpers";
 import { Factions } from "../Faction/Factions";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { getCoreBonus } from "../Server/ServerHelpers";
+
+type IStanek = Stanek;
 
 export function NetscriptStanek(): InternalAPI<IStanek> {
   function checkStanekAPIAccess(ctx: NetscriptContext): void {

@@ -1,5 +1,5 @@
 import type { IReviverValue } from "../utils/JSONReviver";
-import type { Task } from "@nsdefs";
+// import type { Task } from "@nsdefs";
 
 export abstract class Work {
   type: WorkType;

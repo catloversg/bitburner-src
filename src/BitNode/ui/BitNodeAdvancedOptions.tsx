@@ -1,4 +1,4 @@
-import { type BitNodeBooleanOptions } from "@nsdefs";
+// import { type BitNodeBooleanOptions } from "@nsdefs";
 import React from "react";
 import {
   Box,

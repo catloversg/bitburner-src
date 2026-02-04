@@ -1,6 +1,6 @@
 import { handleLabyrinthPassword, isLabyrinthServer } from "./labyrinth";
 import { handleFailedAuth, handleSuccessfulAuth } from "./effects";
-import type { DarknetResult } from "@nsdefs";
+// import type { DarknetResult } from "@nsdefs";
 import { PasswordResponse } from "../models/DarknetServerOptions";
 import { logPasswordAttempt } from "../models/packetSniffing";
 import { getServerState } from "../models/DarknetState";

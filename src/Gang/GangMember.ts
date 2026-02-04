@@ -14,7 +14,7 @@ import {
   calculateAscensionMult,
   calculateAscensionPointsGain,
 } from "./formulas/formulas";
-import { GangMemberExpGain } from "@nsdefs";
+// import { GangMemberExpGain } from "@nsdefs";
 import { convertV2GangEquipmentNames } from "../utils/APIBreaks/3.0.0";
 
 interface IMults {

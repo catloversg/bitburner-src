@@ -1,6 +1,6 @@
 import type { PromisePair } from "../Types/Promises";
 import { Player } from "@player";
-import type { CorpStateName, InvestmentOffer, Result } from "@nsdefs";
+// import type { CorpStateName, InvestmentOffer, Result } from "@nsdefs";
 import { CorpUnlockName, CorpUpgradeName, LiteratureName } from "@enums";
 import { CorporationState } from "./CorporationState";
 import { CorpUnlocks } from "./data/CorporationUnlocks";

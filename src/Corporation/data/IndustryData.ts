@@ -1,4 +1,4 @@
-import { CorpIndustryData } from "@nsdefs";
+// import { CorpIndustryData } from "@nsdefs";
 
 import { createFullRecordFromEntries } from "../../Types/Record";
 import { IndustryType } from "@enums";

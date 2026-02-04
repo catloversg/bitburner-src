@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Player } from "@player";
-import { type BitNodeBooleanOptions } from "@nsdefs";
+// import { type BitNodeBooleanOptions } from "@nsdefs";
 import { enterBitNode } from "../../RedPill";
 import { BitNodes } from "../BitNode";
 import { Modal } from "../../ui/React/Modal";

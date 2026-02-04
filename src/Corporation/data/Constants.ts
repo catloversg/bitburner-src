@@ -1,13 +1,13 @@
-import type {
-  CorpEmployeePosition,
-  CorpIndustryName,
-  CorpMaterialName as APIMaterialName,
-  CorpResearchName,
-  CorpSmartSupplyOption,
-  CorpStateName,
-  CorpUnlockName as APIUnlockName,
-  CorpUpgradeName as APIUpgradeName,
-} from "@nsdefs";
+// import type {
+//   CorpEmployeePosition,
+//   CorpIndustryName,
+//   CorpMaterialName as APIMaterialName,
+//   CorpResearchName,
+//   CorpSmartSupplyOption,
+//   CorpStateName,
+//   CorpUnlockName as APIUnlockName,
+//   CorpUpgradeName as APIUpgradeName,
+// } from "@nsdefs";
 import { CONSTANTS } from "../../Constants";
 import {
   IndustryType,
@@ -20,6 +20,10 @@ import {
   CorpProductResearchName,
 } from "@enums";
 import { PositiveInteger } from "../../types";
+
+type APIMaterialName = CorpMaterialName;
+type APIUnlockName = CorpUnlockName;
+type APIUpgradeName = CorpUpgradeName;
 
 /** Names of all corporation game states */
 export const stateNames: CorpStateName[] = ["START", "PURCHASE", "PRODUCTION", "EXPORT", "SALE"],

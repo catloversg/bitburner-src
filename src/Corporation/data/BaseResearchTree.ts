@@ -1,6 +1,6 @@
 // Defines the ResearchTree that is common to all Corporation Industries
 // i.e. all Industries have these types of Research available to unlock
-import { CorpResearchName } from "@nsdefs";
+// import { CorpResearchName } from "@nsdefs";
 import { Research } from "../Research";
 import { ResearchMap } from "../ResearchMap";
 import { ResearchTree, Node } from "../ResearchTree";

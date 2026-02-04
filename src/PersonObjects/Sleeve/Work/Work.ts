@@ -2,7 +2,7 @@ import { Player } from "@player";
 import { IReviverValue } from "../../../utils/JSONReviver";
 import { Sleeve } from "../Sleeve";
 import { applyWorkStatsExp, WorkStats } from "../../../Work/WorkStats";
-import { SleeveTask } from "@nsdefs";
+// import { SleeveTask } from "@nsdefs";
 import { SleeveCompanyWork } from "./SleeveCompanyWork";
 import { SleeveFactionWork } from "./SleeveFactionWork";
 import { SleeveCrimeWork } from "./SleeveCrimeWork";

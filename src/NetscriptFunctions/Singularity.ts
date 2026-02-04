@@ -1,4 +1,4 @@
-import type { Singularity as ISingularity } from "@nsdefs";
+// import type { Singularity as ISingularity } from "@nsdefs";
 
 import { Player } from "@player";
 import { CityName, CompletedProgramName, FactionWorkType, LocationName } from "@enums";
@@ -54,6 +54,8 @@ import { cat } from "../Terminal/commands/cat";
 import { Crimes } from "../Crime/Crimes";
 import { DarknetServer } from "../Server/DarknetServer";
 import { populateDarknet } from "../DarkNet/controllers/NetworkGenerator";
+
+type ISingularity = Singularity;
 
 export function NetscriptSingularity(): InternalAPI<ISingularity> {
   const runAfterReset = function (cbScript: ScriptFilePath) {

@@ -1,5 +1,5 @@
 import { CodingContractName } from "@enums";
-import { CodingContractSignatures } from "@nsdefs";
+// import { CodingContractSignatures } from "@nsdefs";
 
 import { algorithmicStockTrader } from "./contracts/AlgorithmicStockTrader";
 import { arrayJumpingGame } from "./contracts/ArrayJumpingGame";

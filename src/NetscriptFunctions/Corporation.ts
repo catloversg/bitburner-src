@@ -7,15 +7,15 @@ import { Warehouse } from "../Corporation/Warehouse";
 import { Division } from "../Corporation/Division";
 import { Corporation, CorporationPromise } from "../Corporation/Corporation";
 import { omit } from "lodash";
-import {
-  Corporation as NSCorporation,
-  Division as NSDivision,
-  WarehouseAPI,
-  OfficeAPI,
-  CorpResearchName,
-  CorpMaterialName,
-  CorpStateName,
-} from "@nsdefs";
+// import {
+//   Corporation as NSCorporation,
+//   Division as NSDivision,
+//   WarehouseAPI,
+//   OfficeAPI,
+//   CorpResearchName,
+//   CorpMaterialName,
+//   CorpStateName,
+// } from "@nsdefs";
 
 import {
   createDivision,
@@ -73,6 +73,9 @@ import { PositiveInteger } from "../types";
 import { getRecordKeys } from "../Types/Record";
 import { setDeprecatedProperties } from "../utils/DeprecationHelper";
 import { CONSTANTS } from "../Constants";
+
+// type NSCorporation = Corporation;
+// type NSDivision = Division;
 
 export function NetscriptCorporation(): InternalAPI<NSCorporation> {
   function hasUnlock(unlockName: CorpUnlockName): boolean {

@@ -10,7 +10,7 @@ import {
 } from "./dictionaryData";
 import { getLabyrinthDetails } from "../effects/labyrinth";
 import { DarknetServer } from "../../Server/DarknetServer";
-import type { DarknetResponseCode } from "@nsdefs";
+// import type { DarknetResponseCode } from "@nsdefs";
 import type { MinigamesType } from "../Enums";
 import { DarknetState } from "./DarknetState";
 import { getRamBlock } from "../effects/ramblock";

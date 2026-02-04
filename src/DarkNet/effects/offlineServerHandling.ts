@@ -11,7 +11,7 @@ import { getBackdooredDarkwebServers } from "../utils/darknetNetworkUtils";
 import { hasDarknetAccess } from "../utils/darknetAuthUtils";
 import { DarknetServer } from "../../Server/DarknetServer";
 import { CompletedProgramName } from "../../Enums";
-import type { DarknetResponseCode } from "@nsdefs";
+// import type { DarknetResponseCode } from "@nsdefs";
 import { isIPAddress } from "../../Types/strings";
 
 type FailureResultOptions = {

@@ -8,7 +8,7 @@ import { addCacheToServer } from "./cacheFiles";
 import { DarknetState } from "../models/DarknetState";
 import { getAllMovableDarknetServers } from "../utils/darknetNetworkUtils";
 import { CompletedProgramName } from "@enums";
-import type { DarknetServerData, Person as IPerson } from "@nsdefs";
+// import type { DarknetServerData, Person as IPerson } from "@nsdefs";
 import { clampNumber } from "../../utils/helpers/clampNumber";
 import { ResponseCodeEnum } from "../Enums";
 import { isLabyrinthServer } from "./labyrinth";

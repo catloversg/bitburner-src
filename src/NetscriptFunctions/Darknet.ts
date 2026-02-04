@@ -1,5 +1,5 @@
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
-import type { Darknet as DarknetAPI, DarknetResult } from "@nsdefs";
+// import type { Darknet as DarknetAPI, DarknetResult } from "@nsdefs";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import {
   calculateAuthenticationTime,
@@ -43,11 +43,13 @@ import { getRewardFromCache } from "../DarkNet/effects/cacheFiles";
 import { CONSTANTS } from "../Constants";
 import { getStasisLinkServers } from "../DarkNet/utils/darknetNetworkUtils";
 import { resolveCacheFilePath } from "../Paths/CacheFilePath";
-import type { CacheResult } from "@nsdefs";
+// import type { CacheResult } from "@nsdefs";
 import { MAX_PASSWORD_LENGTH } from "../DarkNet/Constants";
 import { isIPAddress } from "../Types/strings";
 import { getDarknetServerOrThrow } from "../DarkNet/utils/darknetServerUtils";
 import { shuffle } from "lodash";
+
+type DarknetAPI = Darknet;
 
 type CompleteHeartbleedOptions = {
   peek: boolean;

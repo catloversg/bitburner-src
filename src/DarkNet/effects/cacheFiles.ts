@@ -10,7 +10,7 @@ import { initStockMarket, isStockMarketInitialized } from "../../StockMarket/Sto
 import { cachePrefixes } from "../models/dictionaryData";
 import type { DarknetServer } from "../../Server/DarknetServer";
 import { type CacheFilePath, resolveCacheFilePath } from "../../Paths/CacheFilePath";
-import type { CacheResult, Result } from "@nsdefs";
+// import type { CacheResult, Result } from "@nsdefs";
 
 export const generateCacheFilename: (prefix?: string) => CacheFilePath | null = (prefix) => {
   const filenamePrefix = prefix ?? cachePrefixes[Math.floor(Math.random() * cachePrefixes.length)];

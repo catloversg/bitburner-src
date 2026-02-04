@@ -3,7 +3,7 @@ import { BaseServer } from "../../Server/BaseServer";
 import { LogBoxEvents } from "../../ui/React/LogBoxManager";
 import { createRunningScriptInstance, startWorkerScript } from "../../NetscriptWorker";
 import libarg from "arg";
-import { ScriptArg } from "@nsdefs";
+// import { ScriptArg } from "@nsdefs";
 import { isPositiveInteger } from "../../types";
 import { ScriptFilePath, isLegacyScript } from "../../Paths/ScriptFilePath";
 import { sendDeprecationNotice } from "./common/deprecation";

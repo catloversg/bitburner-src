@@ -1,11 +1,11 @@
 import type { NetscriptContext } from "./APIWrapper";
-import type {
-  RunningScript as IRunningScript,
-  Person as IPerson,
-  Server as IServer,
-  ScriptArg,
-  BitNodeOptions,
-} from "@nsdefs";
+// import type {
+//   RunningScript as IRunningScript,
+//   Person as IPerson,
+//   Server as IServer,
+//   ScriptArg,
+//   BitNodeOptions,
+// } from "@nsdefs";
 import type { WorkerScript } from "./WorkerScript";
 
 import React from "react";
@@ -30,7 +30,7 @@ import { type PortNumber, PortHandle } from "../NetscriptPort";
 import { FormulaGang } from "../Gang/formulas/formulas";
 import { GangMember } from "../Gang/GangMember";
 import { GangMemberTask } from "../Gang/GangMemberTask";
-import { RunningScript } from "../Script/RunningScript";
+import { RunningScript as InternalRunningScript } from "../Script/RunningScript";
 import { toNative } from "../NetscriptFunctions/toNative";
 import { ScriptIdentifier } from "./ScriptIdentifier";
 import { findRunningScripts, findRunningScriptByPid } from "../Script/ScriptHelpers";
@@ -68,6 +68,10 @@ import { Programs } from "../Programs/Programs";
 import { getRecordKeys } from "../Types/Record";
 import { DarknetServer } from "../Server/DarknetServer";
 import { getFriendlyType } from "../utils/TypeAssertion";
+
+type IRunningScript = RunningScript;
+type IPerson = Person;
+type IServer = Server;
 
 export const helpers = {
   string,
@@ -748,7 +752,7 @@ export function getRunningScriptsByArgs(
   fn: string,
   hostname: string,
   scriptArgs: ScriptArg[],
-): Map<number, RunningScript> | null {
+): Map<number, InternalRunningScript> | null {
   if (!Array.isArray(scriptArgs)) {
     throw helpers.errorMessage(
       ctx,
@@ -767,7 +771,7 @@ export function getRunningScriptsByArgs(
   return findRunningScripts(path, scriptArgs, server);
 }
 
-function getRunningScript(ctx: NetscriptContext, ident: ScriptIdentifier): RunningScript | null {
+function getRunningScript(ctx: NetscriptContext, ident: ScriptIdentifier): InternalRunningScript | null {
   if (typeof ident === "number") {
     return findRunningScriptByPid(ident);
   } else {
@@ -802,7 +806,7 @@ function getCannotFindRunningScriptErrorMessage(ident: ScriptIdentifier): string
  * @param runningScript Existing, internal RunningScript
  * @returns A sanitized, NS-facing copy of the RunningScript
  */
-function createPublicRunningScript(runningScript: RunningScript, workerScript?: WorkerScript): IRunningScript {
+function createPublicRunningScript(runningScript: InternalRunningScript, workerScript?: WorkerScript): IRunningScript {
   const logProps = runningScript.tailProps;
   return {
     args: runningScript.args.slice(),

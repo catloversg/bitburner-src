@@ -3,7 +3,7 @@
 // Each Node in the Research Trees only holds the name(s) of Research,
 // not an actual Research object. The name can be used to obtain a reference
 // to the corresponding Research object using the ResearchMap
-import { CorpResearchName } from "@nsdefs";
+// import { CorpResearchName } from "@nsdefs";
 import { Research } from "./Research";
 import { ResearchMap } from "./ResearchMap";
 

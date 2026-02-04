@@ -22,6 +22,15 @@ declare interface Document {
 }
 
 declare global {
+  // WIP: Declaring here does not work. We need to add "export {}" to this file, but adding it make other declaration
+  // blocks stop working.
+  // type NSCorporation = Corporation;
+  // type NSDivision = Division;
+  // type IPerson = Person;
+  // type IServer = Server;
+  // type IPlayer = Player;
+  // type IUserInterface = UserInterface;
+
   /**
    * "loader" is not exposed in the public API.
    */

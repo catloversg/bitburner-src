@@ -1,5 +1,5 @@
 import type { NSFull } from "../NetscriptFunctions";
-import type { AutocompleteData, ScriptArg } from "@nsdefs";
+// import type { AutocompleteData, ScriptArg } from "@nsdefs";
 
 // The object portion of this type is not runtime information, it's only to ensure type validation
 // And make it harder to overwrite a url with a random non-url string.

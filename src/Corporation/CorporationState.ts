@@ -1,4 +1,4 @@
-import { CorpStateName } from "@nsdefs";
+// import { CorpStateName } from "@nsdefs";
 import { Generic_fromJSON, Generic_toJSON, IReviverValue, constructorsForReviver } from "../utils/JSONReviver";
 import { stateNames } from "./data/Constants";
 

@@ -1,5 +1,5 @@
 import { currentNodeMults } from "../../BitNode/BitNodeMultipliers";
-import { Person as IPerson, Server as IServer } from "@nsdefs";
+// import { Person as IPerson, Server as IServer } from "@nsdefs";
 import { ServerConstants } from "../data/Constants";
 import { isValidNumber } from "../../utils/helpers/isValidNumber";
 import { getCoreBonus } from "../ServerHelpers";

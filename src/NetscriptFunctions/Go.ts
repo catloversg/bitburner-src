@@ -1,5 +1,5 @@
 import type { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
-import type { Go as NSGo } from "@nsdefs";
+// import type { Go as NSGo } from "@nsdefs";
 import type { Play } from "../Go/Types";
 
 import { Go } from "../Go/Go";
@@ -36,6 +36,8 @@ import {
 } from "../Go/effects/netscriptGoImplementation";
 import { getEnumHelper } from "../utils/EnumHelper";
 import { errorMessage } from "../Netscript/ErrorMessages";
+
+type NSGo = Go;
 
 /**
  * Go API implementation

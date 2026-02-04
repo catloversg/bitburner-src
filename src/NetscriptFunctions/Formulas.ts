@@ -27,7 +27,7 @@ import {
   calculateWeakenTime,
 } from "../Hacking";
 import { CityName, CompletedProgramName, LocationName } from "@enums";
-import { Formulas as IFormulas, Player as IPlayer, Person as IPerson } from "@nsdefs";
+// import { Formulas as IFormulas, Player as IPlayer, Person as IPerson } from "@nsdefs";
 import {
   calculateRespectGain,
   calculateWantedLevelGain,
@@ -56,6 +56,10 @@ import { calculateEffectiveSharedThreads, calculateShareBonus } from "../Network
 import { calculateAuthenticationTime } from "../DarkNet/effects/effects";
 import { assertDarknetServerData } from "../Netscript/TypeAssertion";
 import { getRamBlockRemoved } from "../DarkNet/effects/ramblock";
+
+type IFormulas = Formulas;
+type IPlayer = Player;
+type IPerson = Person;
 
 export function NetscriptFormulas(): InternalAPI<IFormulas> {
   const checkFormulasAccess = function (ctx: NetscriptContext): void {

@@ -1,4 +1,4 @@
-import type { FragmentType } from "@nsdefs";
+// import type { FragmentType } from "@nsdefs";
 import { FragmentTypeEnum, Effect } from "./FragmentType";
 import { Shapes } from "./data/Shapes";
 

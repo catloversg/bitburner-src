@@ -1,6 +1,6 @@
 import { Player } from "@player";
-import { CodingContract, CodingContractResult } from "../CodingContract/Contract";
-import { CodingContractObject, CodingContract as ICodingContract } from "@nsdefs";
+import { CodingContract as InternalCodingContract, CodingContractResult } from "../CodingContract/Contract";
+// import { CodingContractObject, CodingContract as ICodingContract } from "@nsdefs";
 import { InternalAPI, NetscriptContext } from "../Netscript/APIWrapper";
 import { helpers } from "../Netscript/NetscriptHelpers";
 import { CodingContractName } from "@enums";
@@ -9,8 +9,14 @@ import { type BaseServer } from "../Server/BaseServer";
 import { exceptionAlert } from "../utils/helpers/exceptionAlert";
 import { getEnumHelper } from "../utils/EnumHelper";
 
+type ICodingContract = CodingContract;
+
 export function NetscriptCodingContract(): InternalAPI<ICodingContract> {
-  const getCodingContract = function (ctx: NetscriptContext, hostname: string, filename: string): CodingContract {
+  const getCodingContract = function (
+    ctx: NetscriptContext,
+    hostname: string,
+    filename: string,
+  ): InternalCodingContract {
     const server = helpers.getServer(ctx, hostname);
     const contract = server.getContract(filename);
     if (contract == null) {
@@ -23,7 +29,7 @@ export function NetscriptCodingContract(): InternalAPI<ICodingContract> {
   function attemptContract(
     ctx: NetscriptContext,
     server: BaseServer,
-    contract: CodingContract,
+    contract: InternalCodingContract,
     answer: unknown,
   ): string {
     const validationResult = contract.isValid(answer);

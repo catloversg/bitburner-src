@@ -1,7 +1,7 @@
 import { currentNodeMults } from "../BitNode/BitNodeMultipliers";
 import { Crime } from "../Crime/Crime";
 import { newWorkStats, scaleWorkStats, WorkStats, multWorkStats } from "./WorkStats";
-import { Person as IPerson } from "@nsdefs";
+// import { Person as IPerson } from "@nsdefs";
 import { CONSTANTS } from "../Constants";
 import { ClassType, FactionWorkType, LocationName } from "@enums";
 import {
@@ -20,6 +20,8 @@ import { Company } from "../Company/Company";
 import { CompanyPosition } from "../Company/CompanyPosition";
 import { isMember } from "../utils/EnumHelper";
 import { getMultiplierFromCharisma } from "../DarkNet/effects/effects";
+
+type IPerson = Person;
 
 function processWorkStats(person: IPerson, workStats: WorkStats): WorkStats {
   // "person" can be a normal object that the player passes to NS APIs, so we cannot use `person instanceof Sleeve`.

@@ -1,4 +1,4 @@
-import { CorpMaterialName } from "@nsdefs";
+// import { CorpMaterialName } from "@nsdefs";
 import { Generic_fromJSON, Generic_toJSON, IReviverValue, constructorsForReviver } from "../utils/JSONReviver";
 import { materialNames } from "./data/Constants";
 import { Export } from "./Export";

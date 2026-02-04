@@ -1,5 +1,5 @@
 import { Settings } from "./Settings/Settings";
-import { NetscriptPort } from "@nsdefs";
+// import { NetscriptPort } from "@nsdefs";
 import { NetscriptPorts } from "./NetscriptWorker";
 import { PositiveInteger } from "./types";
 

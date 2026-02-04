@@ -1,7 +1,9 @@
-import { Person as IPerson } from "@nsdefs";
+// import { Person as IPerson } from "@nsdefs";
 import { CONSTANTS } from "../Constants";
 import { JobName, JobField } from "@enums";
 import type { Skills } from "../PersonObjects/Skills";
+
+type IPerson = Person;
 
 export interface CompanyPositionCtorParams {
   nextPosition: JobName | null;

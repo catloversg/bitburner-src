@@ -1,4 +1,4 @@
-import { IStyleSettings } from "@nsdefs";
+// import { IStyleSettings } from "@nsdefs";
 
 export const defaultStyles: IStyleSettings = {
   lineHeight: 1.5,

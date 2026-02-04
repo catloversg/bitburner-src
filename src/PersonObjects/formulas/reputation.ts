@@ -1,7 +1,7 @@
 import { CONSTANTS } from "../../Constants";
 import { currentNodeMults } from "../../BitNode/BitNodeMultipliers";
 import { calculateCurrentShareBonus } from "../../NetworkShare/Share";
-import { Person as IPerson } from "@nsdefs";
+// import { Person as IPerson } from "@nsdefs";
 import { calculateIntelligenceBonus } from "./intelligence";
 import { Player } from "@player";
 

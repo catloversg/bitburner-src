@@ -10,7 +10,7 @@ import { ResponseCodeEnum } from "../Enums";
 import { addCacheToServer } from "./cacheFiles";
 import { getDarknetServer } from "../utils/darknetServerUtils";
 import { getFriendlyType, TypeAssertionError } from "../../utils/TypeAssertion";
-import type { SuccessResult } from "@nsdefs";
+// import type { SuccessResult } from "@nsdefs";
 
 export const LAB_CACHE_NAME = "the_great_work";
 

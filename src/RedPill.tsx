@@ -1,7 +1,7 @@
 /** Implementation for what happens when you destroy a BitNode */
 import React from "react";
 import { Player } from "@player";
-import { type BitNodeOptions } from "@nsdefs";
+// import { type BitNodeOptions } from "@nsdefs";
 import { SourceFiles } from "./SourceFile/SourceFiles";
 
 import { dialogBoxCreate } from "./ui/React/DialogBox";

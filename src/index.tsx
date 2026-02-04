@@ -9,6 +9,16 @@ import { newRemoteFileApiConnection } from "./RemoteFileAPI/RemoteFileAPI";
 
 import "./css/font.css";
 
+// WIP: Test if we can declare types like this instead of doing it in all files.
+declare global {
+  type NSCorporation = Corporation;
+  type NSDivision = Division;
+  type IPerson = Person;
+  type IServer = Server;
+  type IPlayer = Player;
+  type IUserInterface = UserInterface;
+}
+
 initElectron();
 globalThis.React = React;
 globalThis.ReactDOM = ReactDOM;

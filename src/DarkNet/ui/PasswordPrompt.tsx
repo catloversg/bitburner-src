@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button, Container, Card, TextField, Typography } from "@mui/material";
 import { getPasswordType } from "../controllers/ServerGenerator";
 import { dnetStyles } from "./dnetStyles";
-import type { DarknetResult } from "@nsdefs";
+// import type { DarknetResult } from "@nsdefs";
 import { getAuthResult } from "../effects/authentication";
 import { DarknetEvents } from "../models/DarknetState";
 import { LabyrinthSummary } from "./LabyrinthSummary";

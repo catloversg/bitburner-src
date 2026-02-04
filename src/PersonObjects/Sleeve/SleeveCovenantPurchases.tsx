@@ -1,5 +1,5 @@
 import { Player } from "@player";
-import type { Result } from "@nsdefs";
+// import type { Result } from "@nsdefs";
 import { Sleeve } from "./Sleeve";
 import { Factions } from "../../Faction/Factions";
 import { FactionName } from "@enums";

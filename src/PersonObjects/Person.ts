@@ -1,4 +1,4 @@
-import type { Person as IPerson, WorkStats } from "@nsdefs";
+// import type { Person as IPerson, WorkStats } from "@nsdefs";
 import type { PlayerOwnedAugmentation } from "../Augmentation/PlayerOwnedAugmentation";
 import type { IReviverValue } from "../utils/JSONReviver";
 import type { MoneySource } from "../utils/MoneySourceTracker";

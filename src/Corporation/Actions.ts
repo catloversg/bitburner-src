@@ -1,5 +1,5 @@
 import { Player } from "@player";
-import type { CorpResearchName, CorpSmartSupplyOption, Result } from "@nsdefs";
+// import type { CorpResearchName, CorpSmartSupplyOption, Result } from "@nsdefs";
 
 import { MaterialInfo } from "./MaterialInfo";
 import { Corporation } from "./Corporation";
