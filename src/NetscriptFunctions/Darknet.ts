@@ -112,7 +112,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           requireDirectConnection: true,
         });
         if (!serverCheck.success) {
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: serverCheck.code,
             message: serverCheck.message,
@@ -133,7 +133,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         return helpers.netscriptDelay(ctx, networkDelay).then(() => {
           const serverCheck = checkDarknetServer(ctx, targetHost, { requireDirectConnection: true });
           if (!serverCheck.success) {
-            return helpers.netscriptDelay(ctx, 100).then(() => {
+            return helpers.netscriptDelay(ctx, 10).then(() => {
               console.log("failed after delay");
               return {
                 success: false,
@@ -230,7 +230,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           requireDirectConnection: true,
         });
         if (!serverCheck.success) {
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: serverCheck.code,
             message: serverCheck.message,
@@ -250,7 +250,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           logger(ctx)(
             `You need a higher charisma level to extract data from ${server.hostname}. (${server.requiredHackingSkill} required)`,
           );
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: ResponseCodeEnum.NotEnoughCharisma,
             message: GenericResponseMessage.NotEnoughCharisma,
@@ -340,7 +340,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         const targetHost = ctx.workerScript.getServer().hostname;
         const serverCheck = checkDarknetServer(ctx, targetHost);
         if (!serverCheck.success) {
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: serverCheck.code,
             message: serverCheck.message,
@@ -351,7 +351,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         const stasisLinkLimit = getStasisLinkLimit();
         if (shouldLink && stasisLinkCount >= stasisLinkLimit) {
           helpers.log(ctx, () => `Stasis link limit reached. (${stasisLinkCount}/${stasisLinkLimit})`);
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: ResponseCodeEnum.StasisLinkLimitReached,
             message: GenericResponseMessage.StasisLinkLimitReached,
@@ -419,7 +419,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         requireDirectConnection: true,
       });
       if (!serverCheck.success) {
-        return helpers.netscriptDelay(ctx, 100).then(() => ({
+        return helpers.netscriptDelay(ctx, 10).then(() => ({
           success: false,
           code: serverCheck.code,
           message: serverCheck.message,
@@ -432,7 +432,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
       const xp = formatNumber(calculatePasswordAttemptChaGain(server, ctx.workerScript.scriptRef.threads), 1);
 
       logger(ctx)(`Captured some outgoing transmissions from ${server.hostname}. (Gained ${xp} cha xp)`);
-      return helpers.netscriptDelay(ctx, networkDelay).then(() => {
+      return helpers.netscriptDelay(ctx, networkDelay / 20).then(() => {
         return {
           success: true,
           code: ResponseCodeEnum.Success,
@@ -450,7 +450,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           preventUseOnStationaryServers: true,
         });
         if (!serverCheck.success) {
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: serverCheck.code,
             message: serverCheck.message,
@@ -462,7 +462,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         if (targetHost === hostOfCurrentServer) {
           const message = `Cannot induce migration on a script's own server. induceServerMigration must target a neighboring connected server.`;
           logger(ctx)(message);
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: ResponseCodeEnum.DirectConnectionRequired,
             message: message,
@@ -478,7 +478,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
             preventUseOnStationaryServers: true,
           });
           if (!serverCheck.success) {
-            return helpers.netscriptDelay(ctx, 100).then(() => ({
+            return helpers.netscriptDelay(ctx, 10).then(() => ({
               success: false,
               code: serverCheck.code,
               message: serverCheck.message,
@@ -546,7 +546,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           requireAdminRights: true,
         });
         if (!serverCheck.success) {
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: serverCheck.code,
             message: serverCheck.message,
@@ -556,7 +556,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
 
         if (server.blockedRam <= 0) {
           logger(ctx)(`Server ${server.hostname} has no host-owned ram left to reallocate.`);
-          return helpers.netscriptDelay(ctx, 100).then(() => ({
+          return helpers.netscriptDelay(ctx, 10).then(() => ({
             success: false,
             code: ResponseCodeEnum.NoBlockRAM,
             message: GenericResponseMessage.NoBlockRAM,
@@ -566,13 +566,13 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         logger(ctx)(`Attempting to liberate RAM from '${server.hostname}'s owner ...`);
         const delayTime = Math.max(8000 * (500 / (500 + Player.skills.charisma)), 200);
 
-        return helpers.netscriptDelay(ctx, delayTime).then(() => {
+        return helpers.netscriptDelay(ctx, delayTime / 20).then(() => {
           const serverCheck = checkDarknetServer(ctx, targetHost, {
             requireDirectConnection: true,
             requireAdminRights: true,
           });
           if (!serverCheck.success) {
-            return helpers.netscriptDelay(ctx, 100).then(() => ({
+            return helpers.netscriptDelay(ctx, 10).then(() => ({
               success: false,
               code: serverCheck.code,
               message: serverCheck.message,
@@ -623,7 +623,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
           `Spreading ${stock.name} stock propaganda to raise volatility... (Est: ${formatNumber(waitTime / 1000, 1)}s)`,
         );
 
-        return helpers.netscriptDelay(ctx, waitTime).then(() => {
+        return helpers.netscriptDelay(ctx, waitTime / 20).then(() => {
           const threads = ctx.workerScript.scriptRef.threads;
           const promotionAmount = threads * ((500 + Player.skills.charisma) / 500);
           DarknetState.stockPromotions[symbol] = (DarknetState.stockPromotions[symbol] ?? 0) + promotionAmount;
@@ -644,7 +644,7 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
       const server = expectRunningOnDarknetServer(ctx);
       expectDarknetAccess(ctx);
 
-      return helpers.netscriptDelay(ctx, waitTime).then(() => {
+      return helpers.netscriptDelay(ctx, waitTime / 20).then(() => {
         return handlePhishingAttack(ctx, server);
       });
     },

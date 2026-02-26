@@ -286,7 +286,12 @@ describe("home", () => {
 
     const { ws: wsDarkWeb, ns: nsDarkWeb } = getWorkerScriptAndNS(SpecialServers.DarkWeb);
     // Authenticate from darkweb
-    expect((await nsDarkWeb.dnet.authenticate(dnetServerHostname, dnetServer.password)).success).toStrictEqual(true);
+    console.log("scp to dnet server and exec on dnet server - before auth");
+    const authResult = await nsDarkWeb.dnet.authenticate(dnetServerHostname, dnetServer.password);
+    if (!authResult.success) {
+      console.log("scp to dnet server and exec on dnet server - after auth", authResult);
+    }
+    expect(authResult.success).toStrictEqual(true);
     expect(dnetServer.hasAdminRights).toStrictEqual(true);
     // Check session created after successfully calling authenticate API
     expect(getServerState(dnetServerHostname).authenticatedPIDs.includes(wsDarkWeb.pid)).toStrictEqual(true);
@@ -881,6 +886,7 @@ describe("Non-darkweb darknet server", () => {
     const ns = getNsOnDarkWeb();
     const target = getFirstDarknetServerAdjacentToDarkWeb();
     const server = getDarknetServerOrThrow(target);
+    console.log("before auth");
     const result = await ns.dnet.authenticate(target, server.password);
     // Logging details for debugging flaky test
     if (!result.success) {

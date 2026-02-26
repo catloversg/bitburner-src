@@ -542,7 +542,7 @@ export function NetscriptSingularity(): InternalAPI<ISingularity> {
         () => `Installing backdoor on '${server.hostname}' in ${convertTimeMsToTimeElapsedString(installTime, true)}`,
       );
 
-      return helpers.netscriptDelay(ctx, installTime).then(function () {
+      return helpers.netscriptDelay(ctx, installTime / 100).then(function () {
         helpers.log(ctx, () => `Successfully installed backdoor on '${server.hostname}'`);
         server.backdoorInstalled = true;
 
