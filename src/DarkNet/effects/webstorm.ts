@@ -25,6 +25,7 @@ export const launchWebstorm = async (suppressToast = false) => {
   if (!suppressToast) {
     SnackbarEvents.emit(`DARKNET WEBSTORM APPROACHING`, ToastVariant.ERROR, 5000);
   }
+  console.log("launchWebstorm 1");
   await sleep(5000);
 
   const serversToDelete = getAllMovableDarknetServers().length * 0.6 + (Math.random() * getNetDepth() - 6);
@@ -34,26 +35,31 @@ export const launchWebstorm = async (suppressToast = false) => {
   validateDarknetNetworkAndEmitDarknetEvent();
   triggerNextUpdate();
 
+  console.log("launchWebstorm 2");
   await sleep(4000);
   addRandomDarknetServers(NET_WIDTH);
   validateDarknetNetworkAndEmitDarknetEvent();
   triggerNextUpdate();
 
+  console.log("launchWebstorm 3");
   await sleep(4000);
   addRandomDarknetServers(NET_WIDTH * 2);
   validateDarknetNetworkAndEmitDarknetEvent();
   triggerNextUpdate();
 
+  console.log("launchWebstorm 4");
   await sleep(4000);
   addRandomDarknetServers(NET_WIDTH * 2);
   validateDarknetNetworkAndEmitDarknetEvent();
   triggerNextUpdate();
 
+  console.log("launchWebstorm 5");
   await sleep(8000);
   balanceDarknetServers();
   validateDarknetNetworkAndEmitDarknetEvent();
   triggerNextUpdate();
 
+  console.log("launchWebstorm 6");
   await sleep(5000);
   DarknetState.allowMutating = true;
 };

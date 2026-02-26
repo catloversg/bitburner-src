@@ -4,7 +4,7 @@ import { isAuthenticated } from "./authentication";
 import { helpers } from "../../Netscript/NetscriptHelpers";
 import { errorMessage } from "../../Netscript/ErrorMessages";
 import type { BaseServer } from "../../Server/BaseServer";
-import { GetServer } from "../../Server/AllServers";
+import { GetAllServers, GetServer } from "../../Server/AllServers";
 import { GenericResponseMessage, ResponseCodeEnum } from "../Enums";
 import { getBackdooredDarkwebServers } from "../utils/darknetNetworkUtils";
 import { hasDarknetAccess } from "../utils/darknetAuthUtils";
@@ -12,6 +12,7 @@ import { DarknetServer } from "../../Server/DarknetServer";
 import { CompletedProgramName } from "../../Enums";
 import type { DarknetResponseCode } from "@nsdefs";
 import { isIPAddress } from "../../Types/strings";
+import { DarknetState } from "../models/DarknetState";
 
 type CheckDarknetServerOptions = {
   requireAdminRights?: boolean;
@@ -47,6 +48,8 @@ export function checkDarknetServer(
   const currentServer = ctx.workerScript.getServer();
   const [targetServer, host] = helpers.getServer(ctx, _host);
   if (!targetServer) {
+    console.log("checkDarknetServer", GetAllServers(true));
+    console.log("checkDarknetServer", DarknetState);
     // Because servers going offline is timing-sensitive, it is outside of
     // player's control. So we don't want to throw for "server does not exist" in this case,
     // despite throwing being the usual doctrine.

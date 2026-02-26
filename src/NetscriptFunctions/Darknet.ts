@@ -133,11 +133,14 @@ export function NetscriptDarknet(): InternalAPI<DarknetAPI> {
         return helpers.netscriptDelay(ctx, networkDelay).then(() => {
           const serverCheck = checkDarknetServer(ctx, targetHost, { requireDirectConnection: true });
           if (!serverCheck.success) {
-            return helpers.netscriptDelay(ctx, 100).then(() => ({
-              success: false,
-              code: serverCheck.code,
-              message: serverCheck.message,
-            }));
+            return helpers.netscriptDelay(ctx, 100).then(() => {
+              console.log("failed after delay");
+              return {
+                success: false,
+                code: serverCheck.code,
+                message: serverCheck.message,
+              };
+            });
           }
 
           const server = serverCheck.server;
