@@ -132,7 +132,7 @@ export const mutateDarknet = (): void => {
     balanceDarknetServers();
   }
   validateDarknetNetwork();
-  DarknetEvents.emit();
+  DarknetEvents.emit("RefreshUI");
 };
 
 export const restartAllDarknetServers = (): void => {
