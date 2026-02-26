@@ -48,8 +48,11 @@ export function checkDarknetServer(
   const currentServer = ctx.workerScript.getServer();
   const [targetServer, host] = helpers.getServer(ctx, _host);
   if (!targetServer) {
-    console.log("checkDarknetServer", GetAllServers(true));
-    console.log("checkDarknetServer", DarknetState);
+    // @ts-expect-error
+    if (globalThis.verboseLog) {
+      console.log("checkDarknetServer", GetAllServers(true));
+      console.log("checkDarknetServer", DarknetState);
+    }
     // Because servers going offline is timing-sensitive, it is outside of
     // player's control. So we don't want to throw for "server does not exist" in this case,
     // despite throwing being the usual doctrine.

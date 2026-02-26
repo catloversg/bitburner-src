@@ -876,6 +876,8 @@ describe("darkweb", () => {
 
 describe("Non-darkweb darknet server", () => {
   test("authenticate from darkweb", async () => {
+    // @ts-expect-error
+    globalThis.verboseLog = true;
     const ns = getNsOnDarkWeb();
     const target = getFirstDarknetServerAdjacentToDarkWeb();
     const server = getDarknetServerOrThrow(target);
@@ -891,6 +893,8 @@ describe("Non-darkweb darknet server", () => {
     }
     expect(result.code).toStrictEqual(ResponseCodeEnum.Success);
     expect(result.success).toStrictEqual(true);
+    // @ts-expect-error
+    globalThis.verboseLog = false;
   });
   test("authenticate itself", async () => {
     const ns = getNsOnNonDarkwebDarknetServer();
