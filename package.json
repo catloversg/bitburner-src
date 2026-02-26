@@ -127,7 +127,7 @@
     "lint": "eslint --fix --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0 src test",
     "lint:report": "eslint --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0 src test",
     "preinstall": "node ./tools/engines-check/engines-check.js",
-    "test": "jest",
+    "test": "jest test/jest/Netscript/Darknet.test.ts",
     "test:watch": "jest --watch",
     "watch": "webpack --watch --mode production",
     "watch:dev": "webpack --watch --mode development",
