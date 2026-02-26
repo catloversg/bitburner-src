@@ -67,7 +67,7 @@ jobs:
         run: npm ci
       - name: Run tests
         run: |
-          for i in {1..20}; do
+          for i in {1..100}; do
             npm run test
           done
   # check-docs:
