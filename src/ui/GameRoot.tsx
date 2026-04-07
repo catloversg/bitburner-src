@@ -36,7 +36,7 @@ import { GenericLocation } from "../Locations/ui/GenericLocation";
 import { JobRoot } from "../Locations/ui/JobRoot";
 import { LocationCity } from "../Locations/ui/City";
 import { ProgramsRoot } from "../Programs/ui/ProgramsRoot";
-import { ScriptEditorRoot } from "../ScriptEditor/ui/ScriptEditorRoot";
+// import { ScriptEditorRoot } from "../ScriptEditor/ui/ScriptEditorRoot";
 import { MilestonesRoot } from "../Milestones/ui/MilestonesRoot";
 import { TerminalRoot } from "../Terminal/ui/TerminalRoot";
 import { Terminal } from "../Terminal";
@@ -72,7 +72,7 @@ import { V2Modal } from "../utils/V2Modal";
 import { useRerender } from "./React/hooks";
 import { HistoryProvider } from "./React/Documentation";
 import { GoRoot } from "../Go/ui/GoRoot";
-import { Settings } from "../Settings/Settings";
+// import { Settings } from "../Settings/Settings";
 import { isBitNodeFinished } from "../BitNode/BitNodeUtils";
 import { UIEventEmitter, UIEventType } from "./UIEventEmitter";
 import { exceptionAlert } from "../utils/helpers/exceptionAlert";
@@ -341,16 +341,16 @@ export function GameRoot(): React.ReactElement {
       mainPage = <CharacterStats />;
       break;
     }
-    case Page.ScriptEditor: {
-      mainPage = (
-        <ScriptEditorRoot
-          files={pageWithContext.files ?? new Map()}
-          hostname={pageWithContext.options?.hostname ?? Player.getCurrentServer().hostname}
-          vim={pageWithContext.options === undefined ? Settings.MonacoDefaultToVim : pageWithContext.options.vim}
-        />
-      );
-      break;
-    }
+    // case Page.ScriptEditor: {
+    //   mainPage = (
+    //     <ScriptEditorRoot
+    //       files={pageWithContext.files ?? new Map()}
+    //       hostname={pageWithContext.options?.hostname ?? Player.getCurrentServer().hostname}
+    //       vim={pageWithContext.options === undefined ? Settings.MonacoDefaultToVim : pageWithContext.options.vim}
+    //     />
+    //   );
+    //   break;
+    // }
     case Page.ActiveScripts: {
       mainPage = <ActiveScriptsRoot page={SimplePage.ActiveScripts} />;
       break;

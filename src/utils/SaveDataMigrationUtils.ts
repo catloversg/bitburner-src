@@ -16,8 +16,8 @@ import { AugmentationName, CityName, CodingContractName, LocationName } from "@e
 import { GetAllServers } from "../Server/AllServers";
 import { StockMarket } from "../StockMarket/StockMarket";
 import { AwardNFG, v1APIBreak } from "./v1APIBreak";
-import { Settings } from "../Settings/Settings";
-import { defaultMonacoTheme } from "../ScriptEditor/ui/themes";
+// import { Settings } from "../Settings/Settings";
+// import { defaultMonacoTheme } from "../ScriptEditor/ui/themes";
 import { PlayerOwnedAugmentation } from "../Augmentation/PlayerOwnedAugmentation";
 import { v2APIBreak } from "./v2APIBreak";
 import { Terminal } from "../Terminal";
@@ -181,7 +181,7 @@ export async function evaluateVersionCompatibility(ver: string | number): Promis
   }
 
   if (ver < 15) {
-    Settings.EditorTheme = { ...defaultMonacoTheme };
+    // Settings.EditorTheme = { ...defaultMonacoTheme };
   }
   //Fix contract names
   if (ver < 16) {

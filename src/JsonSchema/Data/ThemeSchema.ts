@@ -1,4 +1,4 @@
-import { validEditorThemeBases } from "../../ScriptEditor/ui/themes";
+// import { validEditorThemeBases } from "../../ScriptEditor/ui/themes";
 import type { ITheme } from "../../Themes/Themes";
 import { getRecordKeys } from "../../Types/Record";
 
@@ -277,7 +277,7 @@ export const EditorThemeSchema = {
        * Monaco checks the base theme at runtime. If the value is invalid, monaco will throw an error ("Error: Illegal
        * theme base!") and crash the game.
        */
-      enum: validEditorThemeBases,
+      // enum: validEditorThemeBases,
     },
     inherit: {
       type: "boolean",

@@ -1,7 +1,7 @@
 import type { Result } from "@nsdefs";
 import { toggleSuppressErrorModals } from "../ErrorHandling/ErrorState";
 import {
-  assertAndSanitizeEditorTheme,
+  // assertAndSanitizeEditorTheme,
   assertAndSanitizeKeyBindings,
   assertAndSanitizeMainTheme,
   assertAndSanitizeStyles,
@@ -81,13 +81,13 @@ export function loadSettings(saveString: string) {
   } catch (error) {
     console.error(error);
   }
-  try {
-    // Sanitize editor theme data. Invalid editor theme data may crash the game when the player opens the script editor.
-    assertAndSanitizeEditorTheme(save.EditorTheme);
-    Object.assign(Settings.EditorTheme, save.EditorTheme);
-  } catch (error) {
-    console.error(error);
-  }
+  // try {
+  //   // Sanitize editor theme data. Invalid editor theme data may crash the game when the player opens the script editor.
+  //   assertAndSanitizeEditorTheme(save.EditorTheme);
+  //   Object.assign(Settings.EditorTheme, save.EditorTheme);
+  // } catch (error) {
+  //   console.error(error);
+  // }
   try {
     // Sanitize styles.
     assertAndSanitizeStyles(save.styles);
@@ -113,7 +113,7 @@ export function loadSettings(saveString: string) {
   Object.assign(Settings, save, {
     overview: Settings.overview,
     theme: Settings.theme,
-    EditorTheme: Settings.EditorTheme,
+    // EditorTheme: Settings.EditorTheme,
     styles: Settings.styles,
     KeyBindings: Settings.KeyBindings,
   });

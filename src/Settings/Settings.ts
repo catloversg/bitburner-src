@@ -1,5 +1,5 @@
-import type { CursorBlinking, CursorStyle, Minimap, StickyScroll, WordWrapOptions } from "../ScriptEditor/ui/Options";
-import { defaultMonacoTheme } from "../ScriptEditor/ui/themes";
+// import type { CursorBlinking, CursorStyle, Minimap, StickyScroll, WordWrapOptions } from "../ScriptEditor/ui/Options";
+// import { defaultMonacoTheme } from "../ScriptEditor/ui/themes";
 import { defaultStyles } from "../Themes/Styles";
 import { defaultTheme } from "../Themes/Themes";
 import type { PlayerDefinedKeyBindingsType } from "../utils/KeyBindingUtils";
@@ -86,7 +86,7 @@ export const Settings = {
   /** Character overview settings. */
   overview: { x: 0, y: 0, opened: true },
   /**  Script editor theme data. */
-  EditorTheme: { ...defaultMonacoTheme },
+  // EditorTheme: { ...defaultMonacoTheme },
   /** Order to display the player's owned Augmentations/Source Files. */
   OwnedAugmentationsOrder: OwnedAugmentationsOrderSetting.AcquirementTime,
   /** What order the Augmentations should be displayed in when purchasing from a Faction. */
@@ -108,17 +108,22 @@ export const Settings = {
   /** Whether to use Vim mod by default in the script editor */
   MonacoDefaultToVim: false,
   /** Word wrap setting for Script Editor. */
-  MonacoWordWrap: "off" as WordWrapOptions,
+  // MonacoWordWrap: "off" as WordWrapOptions,
+  MonacoWordWrap: "off",
   /** Whether to run Beautify code formatter on save */
   MonacoBeautifyOnSave: false,
   /** Control the cursor style*/
-  MonacoCursorStyle: "line" as CursorStyle,
+  // MonacoCursorStyle: "line" as CursorStyle,
+  MonacoCursorStyle: "line",
   /** Control the cursor animation style */
-  MonacoCursorBlinking: "blink" as CursorBlinking,
+  // MonacoCursorBlinking: "blink" as CursorBlinking,
+  MonacoCursorBlinking: "blink",
   /** Toggle use of Sticky Scroll in the Script Editor */
-  MonacoStickyScroll: { enabled: false } as StickyScroll,
+  // MonacoStickyScroll: { enabled: false } as StickyScroll,
+  MonacoStickyScroll: { enabled: false },
   /** Whether to show minimap in the script editor */
-  MonacoMinimap: { enabled: true } as Minimap,
+  // MonacoMinimap: { enabled: true } as Minimap,
+  MonacoMinimap: { enabled: true },
   /** Whether to autosave on focus change */
   MonacoAutoSaveOnFocusChange: true,
   /** Whether to hide trailing zeroes on fractional part of decimal */

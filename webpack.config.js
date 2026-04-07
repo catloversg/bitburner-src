@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const webpack = require("webpack");
-const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+// const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
@@ -90,7 +90,7 @@ module.exports = (env, argv) => {
 
   return {
     plugins: [
-      new MonacoWebpackPlugin({ languages: ["javascript", "typescript", "json", "css"] }),
+      // new MonacoWebpackPlugin({ languages: ["javascript", "typescript", "json", "css"] }),
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": isDevelopment ? '"development"' : '"production"',
       }),
