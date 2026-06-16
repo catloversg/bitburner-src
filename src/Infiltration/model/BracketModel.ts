@@ -13,10 +13,10 @@ interface Settings {
 }
 
 const difficultySettings = {
-  Trivial: { timer: 8000, min: 2, max: 3 },
-  Normal: { timer: 6000, min: 4, max: 5 },
-  Hard: { timer: 4000, min: 4, max: 6 },
-  Brutal: { timer: 2500, min: 7, max: 7 },
+  Trivial: { timer: 800000, min: 2, max: 3 },
+  Normal: { timer: 600000, min: 4, max: 5 },
+  Hard: { timer: 400000, min: 4, max: 6 },
+  Brutal: { timer: 250000, min: 7, max: 7 },
 };
 
 function generateLeftSide(settings: Settings): string {
@@ -34,6 +34,11 @@ function generateLeftSide(settings: Settings): string {
 }
 
 function getChar(event: KeyboardLikeEvent): string {
+  console.log(
+    event,
+    event.key,
+    ([KEY.CLOSE_PARENTHESIS, KEY.CLOSE_BRACKET, KEY.CLOSE_BRACE, KEY.GREATER_THAN] as string[]).includes(event.key),
+  );
   if (([KEY.CLOSE_PARENTHESIS, KEY.CLOSE_BRACKET, KEY.CLOSE_BRACE, KEY.GREATER_THAN] as string[]).includes(event.key)) {
     return event.key;
   }

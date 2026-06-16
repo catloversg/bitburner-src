@@ -196,6 +196,7 @@ export class Infiltration {
     while (this.gameIds.includes(id)) {
       id = Math.floor(Math.random() * minigames.length);
     }
+    id = 1;
     this.gameIds.unshift(id);
     this.gameIds.pop();
     this.stage = new minigames[id](this);
