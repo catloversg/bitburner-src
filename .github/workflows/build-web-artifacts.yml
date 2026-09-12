@@ -1,0 +1,92 @@
+name: Build web artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      git-sha:
+        description: "Commit SHA-1 to checkout"
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      git-sha:
+        type: string
+        required: false
+        default: ""
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.git-sha || inputs.git-sha || github.sha }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build the production app
+        shell: bash
+        run: npx webpack --mode production --output-path dist-win
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-win
+          include-hidden-files: true
+          path: dist-win/*
+          if-no-files-found: error
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.git-sha || inputs.git-sha || github.sha }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build the production app
+        run: npx webpack --mode production --output-path dist-linux
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-linux
+          include-hidden-files: true
+          path: dist-linux/*
+          if-no-files-found: error
+
+  build-mac:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.git-sha || inputs.git-sha || github.sha }}
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "npm"
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build the production app
+        run: npx webpack --mode production --output-path dist-mac
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-mac
+          include-hidden-files: true
+          path: dist-mac/*
+          if-no-files-found: error
